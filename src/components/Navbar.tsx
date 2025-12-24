@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, GraduationCap, ChevronDown } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const navLinks = [
@@ -51,15 +51,8 @@ export const Navbar = () => {
               e.preventDefault();
               scrollToSection('#home');
             }}
-            className="flex items-center gap-3 group"
+            className="flex items-center group"
           >
-            <div className={`p-2 rounded-xl transition-all duration-300 ${
-              scrolled ? 'bg-primary' : 'bg-primary-foreground/10 backdrop-blur-sm'
-            }`}>
-              <GraduationCap className={`h-8 w-8 transition-colors ${
-                scrolled ? 'text-primary-foreground' : 'text-primary-foreground'
-              }`} />
-            </div>
             <div className="flex flex-col">
               <span className={`text-xl font-display font-bold tracking-tight transition-colors ${
                 scrolled ? 'text-foreground' : 'text-primary-foreground'
