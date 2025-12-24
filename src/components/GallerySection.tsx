@@ -5,12 +5,12 @@ const categories = ['All', 'Campus', 'Events', 'Sports', 'Academic', 'Cultural']
 
 const galleryImages = [
   { id: 1, category: 'Campus', title: 'Main Building', color: 'from-blue-400 to-blue-600' },
-  { id: 2, category: 'Events', title: 'Annual Day 2024', color: 'from-purple-400 to-purple-600' },
+  { id: 2, category: 'Events', title: 'Annual Day 2082', color: 'from-purple-400 to-purple-600' },
   { id: 3, category: 'Sports', title: 'Sports Day', color: 'from-green-400 to-green-600' },
   { id: 4, category: 'Academic', title: 'Science Lab', color: 'from-amber-400 to-amber-600' },
   { id: 5, category: 'Cultural', title: 'Dance Performance', color: 'from-pink-400 to-pink-600' },
   { id: 6, category: 'Campus', title: 'Library', color: 'from-teal-400 to-teal-600' },
-  { id: 7, category: 'Events', title: 'Independence Day', color: 'from-orange-400 to-orange-600' },
+  { id: 7, category: 'Events', title: 'National Unity Day ', color: 'from-orange-400 to-orange-600' },
   { id: 8, category: 'Sports', title: 'Cricket Match', color: 'from-red-400 to-red-600' },
   { id: 9, category: 'Academic', title: 'Computer Lab', color: 'from-indigo-400 to-indigo-600' },
   { id: 10, category: 'Cultural', title: 'Music Concert', color: 'from-rose-400 to-rose-600' },

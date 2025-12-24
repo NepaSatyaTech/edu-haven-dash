@@ -11,7 +11,7 @@ export const AboutSection = () => {
           </span>
           <h2 className="section-title">A Legacy of Excellence</h2>
           <p className="section-subtitle">
-            For over five decades, Sunrise Academy has been at the forefront of 
+            For over five decades,  Lautan Ram Dropadi Devi has been at the forefront of 
             educational excellence, nurturing generations of successful leaders.
           </p>
         </div>
@@ -43,7 +43,7 @@ export const AboutSection = () => {
                   <span className="text-2xl font-display font-bold text-secondary">A+</span>
                 </div>
                 <div>
-                  <p className="font-bold text-foreground">CBSE Accredited</p>
+                  <p className="font-bold text-foreground">NEB Accredited</p>
                   <p className="text-sm text-muted-foreground">Top-rated Institution</p>
                 </div>
               </div>
@@ -57,7 +57,7 @@ export const AboutSection = () => {
               <span className="text-gradient">Innovation</span>
             </h3>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Sunrise Academy stands as a beacon of academic excellence and holistic development. 
+              Lautan Ram Dropadi Devi stands as a become  of academic excellence and holistic development. 
               Our institution combines time-tested educational methodologies with cutting-edge 
               technology to prepare students for the challenges of tomorrow.
             </p>
@@ -148,12 +148,12 @@ export const AboutSection = () => {
               <blockquote className="text-lg md:text-xl text-foreground italic leading-relaxed mb-4">
                 "Education is not just about acquiring knowledge; it's about developing character, 
                 fostering curiosity, and preparing young minds to face life's challenges with 
-                confidence and integrity. At Sunrise Academy, every child is a unique story 
+                confidence and integrity. At Lautan Ram Dropadi Devi, every child is a unique story 
                 waiting to be written."
               </blockquote>
               <div>
                 <p className="font-display font-bold text-foreground">Dr. Rajesh Kumar</p>
-                <p className="text-muted-foreground">Principal, Sunrise Academy</p>
+                <p className="text-muted-foreground">Principal, Lautan Ram Dropadi Devi</p>
               </div>
             </div>
           </div>

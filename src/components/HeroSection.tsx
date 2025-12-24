@@ -35,14 +35,14 @@ export const HeroSection = () => {
 
           {/* Main Heading */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-primary-foreground mb-6 leading-tight animate-fade-up delay-100">
-            Shaping Tomorrow's{' '}
-            <span className="text-gradient">Leaders</span>{' '}
-            Today
+            Lautan Ram {' '}
+            <span className="text-gradient">Dropadi</span>{' '}
+            Devi Secondary School
           </h1>
 
           {/* Subheading */}
           <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mx-auto mb-10 font-body leading-relaxed animate-fade-up delay-200">
-            Welcome to Sunrise Academy, where tradition meets innovation. 
+            Welcome to Lautan Ram Dropadi Devi Secondary School, where tradition meets innovation. 
             We nurture young minds with world-class education, holistic development, 
             and values that last a lifetime.
           </p>

@@ -53,7 +53,7 @@ export const AcademicsSection = () => {
           </span>
           <h2 className="section-title">Comprehensive Curriculum</h2>
           <p className="section-subtitle">
-            Our CBSE-affiliated curriculum is designed to foster intellectual curiosity, 
+            Our NEB-affiliated curriculum is designed to foster intellectual curiosity, 
             critical thinking, and holistic development at every stage.
           </p>
         </div>

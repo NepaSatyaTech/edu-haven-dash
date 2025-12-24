@@ -35,16 +35,16 @@ export const Footer = () => {
                 <GraduationCap className="h-8 w-8 text-secondary" />
               </div>
               <div>
-                <span className="text-xl font-display font-bold">Sunrise Academy</span>
+                <span className="text-xl font-display font-bold">Lautan Ram Dropadi Devi</span>
                 <p className="text-xs text-primary-foreground/70">Excellence in Education</p>
               </div>
             </a>
             <p className="text-primary-foreground/80 text-sm leading-relaxed mb-6">
-              Nurturing minds, building futures. Sunrise Academy has been shaping 
+              Nurturing minds, building futures. Lautan Ram Dropadi Devi has been shaping 
               leaders for over 50 years with excellence in education and holistic development.
             </p>
             <p className="text-sm text-primary-foreground/70">
-              CBSE Affiliation No: 2730001
+              NEB Affiliation No: 273001
             </p>
           </div>
 
@@ -109,7 +109,7 @@ export const Footer = () => {
       <div className="border-t border-primary-foreground/10">
         <div className="container-custom mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-primary-foreground/70 flex items-center gap-1">
-            © 2024 Sunrise Academy. Made with <Heart className="w-4 h-4 text-secondary fill-secondary" /> for Education
+            © 2024 Lautan Ram Dropadi Devi. Made with <Heart className="w-4 h-4 text-secondary fill-secondary" /> for Education
           </p>
           <div className="flex items-center gap-6">
             <a href="#" className="text-sm text-primary-foreground/70 hover:text-secondary transition-colors">

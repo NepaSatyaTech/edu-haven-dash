@@ -42,12 +42,7 @@ const facilities = [
     description: 'GPS-enabled buses covering all major routes with trained drivers.',
     color: 'bg-red-500/10 text-red-600',
   },
-  {
-    icon: Home,
-    title: 'Hostel',
-    description: 'Comfortable accommodation with 24/7 security and nutritious meals.',
-    color: 'bg-indigo-500/10 text-indigo-600',
-  },
+
   {
     icon: Utensils,
     title: 'Cafeteria',

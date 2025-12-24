@@ -5,7 +5,7 @@ const testimonials = [
     name: 'Mrs. Sunita Kapoor',
     role: 'Parent of Grade 8 Student',
     content:
-      "Sunrise Academy has transformed my daughter's approach to learning. The teachers are incredibly supportive, and the holistic development focus is remarkable.",
+      "Lautan Ram Dropadi Devi has transformed my daughter's approach to learning. The teachers are incredibly supportive, and the holistic development focus is remarkable.",
     rating: 5,
     initials: 'SK',
     color: 'from-blue-500 to-blue-600',
@@ -51,7 +51,7 @@ export const TestimonialsSection = () => {
           <h2 className="section-title">What Our Community Says</h2>
           <p className="section-subtitle">
             Hear from parents, students, and alumni about their experience 
-            at Sunrise Academy.
+            at Lautan Ram Dropadi Devi.
           </p>
         </div>
 

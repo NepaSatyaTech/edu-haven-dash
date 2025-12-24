@@ -4,7 +4,7 @@ const facultyMembers = [
   {
     name: 'Dr. Priya Sharma',
     designation: 'Head of Sciences',
-    qualification: 'Ph.D. in Physics, IIT Delhi',
+    qualification: 'Ph.D. in Physics, IIT Bombay',
     initials: 'PS',
     color: 'from-blue-500 to-blue-600',
   },

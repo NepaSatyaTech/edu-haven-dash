@@ -79,7 +79,7 @@ export const NoticesSection = () => {
           <h2 className="section-title">Stay Updated</h2>
           <p className="section-subtitle">
             Important announcements, upcoming events, and the latest news 
-            from Sunrise Academy.
+            from Lautan Ram Dropadi Devi.
           </p>
         </div>
 

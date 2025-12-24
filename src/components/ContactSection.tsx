@@ -7,22 +7,22 @@ const contactInfo = [
   {
     icon: MapPin,
     title: 'Address',
-    lines: ['123 Education Lane, Knowledge Park', 'New Delhi, India - 110001'],
+    lines: ['Bijaynagar 7 , Ganeshpur', 'Kapilvastu, Nepal - 32900'],
   },
   {
     icon: Phone,
     title: 'Phone',
-    lines: ['+91 11 2345 6789', '+91 98765 43210'],
+    lines: ['977 9817425483', '+977 9878945612'],
   },
   {
     icon: Mail,
     title: 'Email',
-    lines: ['info@sunriseacademy.edu', 'admissions@sunriseacademy.edu'],
+    lines: ['info@lautandropadidevi.edu', 'admissions@lautandropadidevi.edu'],
   },
   {
     icon: Clock,
     title: 'Office Hours',
-    lines: ['Monday - Friday: 8:00 AM - 4:00 PM', 'Saturday: 9:00 AM - 1:00 PM'],
+    lines: ['Sunday - Friday: 8:00 AM - 4:00 PM'],
   },
 ];
 
@@ -97,7 +97,7 @@ export const ContactSection = () => {
                     Interactive Map
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    123 Education Lane, New Delhi
+                    123 Education Lane, Bijaynagar
                   </p>
                 </div>
               </div>
