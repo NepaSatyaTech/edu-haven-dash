@@ -1,0 +1,334 @@
+import { useState, useEffect } from 'react';
+import { Plus, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface Faculty {
+  id: string;
+  name: string;
+  designation: string;
+  qualification: string | null;
+  email: string | null;
+  phone: string | null;
+  department: string | null;
+  is_active: boolean;
+  display_order: number;
+  created_at: string;
+}
+
+const AdminFaculty = () => {
+  const [faculty, setFaculty] = useState<Faculty[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingFaculty, setEditingFaculty] = useState<Faculty | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    designation: '',
+    qualification: '',
+    email: '',
+    phone: '',
+    department: '',
+    is_active: true,
+    display_order: 0,
+  });
+  const { toast } = useToast();
+
+  const departments = ['Science', 'Mathematics', 'Languages', 'Social Studies', 'Computer Science', 'Arts', 'Music', 'Physical Education', 'Administration'];
+
+  const fetchFaculty = async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from('faculty')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching faculty:', error);
+      toast({ title: 'Error', description: 'Failed to load faculty', variant: 'destructive' });
+    } else {
+      setFaculty(data || []);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchFaculty();
+  }, []);
+
+  const openModal = (member?: Faculty) => {
+    if (member) {
+      setEditingFaculty(member);
+      setFormData({
+        name: member.name,
+        designation: member.designation,
+        qualification: member.qualification || '',
+        email: member.email || '',
+        phone: member.phone || '',
+        department: member.department || '',
+        is_active: member.is_active,
+        display_order: member.display_order,
+      });
+    } else {
+      setEditingFaculty(null);
+      setFormData({
+        name: '',
+        designation: '',
+        qualification: '',
+        email: '',
+        phone: '',
+        department: '',
+        is_active: true,
+        display_order: faculty.length,
+      });
+    }
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingFaculty(null);
+    setFormData({
+      name: '',
+      designation: '',
+      qualification: '',
+      email: '',
+      phone: '',
+      department: '',
+      is_active: true,
+      display_order: 0,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (editingFaculty) {
+      const { error } = await supabase
+        .from('faculty')
+        .update(formData)
+        .eq('id', editingFaculty.id);
+
+      if (error) {
+        toast({ title: 'Error', description: 'Failed to update faculty', variant: 'destructive' });
+      } else {
+        toast({ title: 'Success', description: 'Faculty updated successfully' });
+        fetchFaculty();
+        closeModal();
+      }
+    } else {
+      const { error } = await supabase.from('faculty').insert([formData]);
+
+      if (error) {
+        toast({ title: 'Error', description: 'Failed to add faculty', variant: 'destructive' });
+      } else {
+        toast({ title: 'Success', description: 'Faculty added successfully' });
+        fetchFaculty();
+        closeModal();
+      }
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this faculty member?')) return;
+
+    const { error } = await supabase.from('faculty').delete().eq('id', id);
+
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to delete faculty', variant: 'destructive' });
+    } else {
+      toast({ title: 'Success', description: 'Faculty deleted successfully' });
+      fetchFaculty();
+    }
+  };
+
+  const toggleActive = async (member: Faculty) => {
+    const { error } = await supabase
+      .from('faculty')
+      .update({ is_active: !member.is_active })
+      .eq('id', member.id);
+
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to update faculty', variant: 'destructive' });
+    } else {
+      fetchFaculty();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-display font-bold text-foreground">Faculty</h1>
+          <p className="text-muted-foreground">Manage teachers and staff members</p>
+        </div>
+        <Button onClick={() => openModal()} className="gap-2">
+          <Plus className="w-4 h-4" />
+          Add Faculty
+        </Button>
+      </div>
+
+      {/* Faculty List */}
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : faculty.length === 0 ? (
+        <div className="glass-card p-12 text-center">
+          <p className="text-muted-foreground">No faculty members yet. Add your first member!</p>
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {faculty.map((member) => (
+            <div key={member.id} className="glass-card p-5">
+              <div className="flex items-start justify-between mb-3">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-lg font-display font-bold text-primary">
+                    {member.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                  </span>
+                </div>
+                <button
+                  onClick={() => toggleActive(member)}
+                  className={`p-1.5 rounded-lg transition-colors ${
+                    member.is_active
+                      ? 'bg-emerald-500/10 text-emerald-600'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {member.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                </button>
+              </div>
+              <h3 className="font-display font-bold text-foreground">{member.name}</h3>
+              <p className="text-sm text-primary font-medium">{member.designation}</p>
+              {member.department && (
+                <p className="text-xs text-muted-foreground mt-1">{member.department}</p>
+              )}
+              {member.qualification && (
+                <p className="text-xs text-muted-foreground">{member.qualification}</p>
+              )}
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={() => openModal(member)}
+                  className="flex-1 py-2 rounded-lg bg-muted hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors text-sm font-medium"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(member.id)}
+                  className="py-2 px-3 rounded-lg bg-muted hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-foreground/50 flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl shadow-elevated max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-border">
+              <h2 className="text-xl font-display font-bold text-foreground">
+                {editingFaculty ? 'Edit Faculty' : 'Add Faculty'}
+              </h2>
+            </div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                    placeholder="Full name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Designation *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.designation}
+                    onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                    placeholder="e.g., Senior Teacher"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Department</label>
+                  <select
+                    value={formData.department}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                  >
+                    <option value="">Select Department</option>
+                    {departments.map((dept) => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">Qualification</label>
+                  <input
+                    type="text"
+                    value={formData.qualification}
+                    onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                    placeholder="e.g., M.Sc Mathematics"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                    placeholder="Email address"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Phone</label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                    placeholder="Phone number"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="is_active"
+                  checked={formData.is_active}
+                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                  className="w-4 h-4 rounded border-border"
+                />
+                <label htmlFor="is_active" className="text-sm font-medium text-foreground">
+                  Active (visible on website)
+                </label>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={closeModal} className="flex-1">
+                  Cancel
+                </Button>
+                <Button type="submit" className="flex-1">
+                  {editingFaculty ? 'Update' : 'Add'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AdminFaculty;
