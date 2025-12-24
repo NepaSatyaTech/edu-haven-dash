@@ -62,8 +62,8 @@ export const HeroSection = () => {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 animate-fade-up delay-400">
             {[
-              { icon: Users, value: '2500+', label: 'Students' },
-              { icon: BookOpen, value: '150+', label: 'Expert Faculty' },
+              { icon: Users, value: '750+', label: 'Students' },
+              { icon: BookOpen, value: '40+', label: 'Expert Faculty' },
               { icon: Award, value: '98%', label: 'Success Rate' },
               { icon: GraduationCapIcon, value: '50+', label: 'Years Legacy' },
             ].map((stat, index) => (

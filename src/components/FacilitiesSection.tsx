@@ -111,10 +111,10 @@ export const FacilitiesSection = () => {
         <div className="mt-20 glass-card p-8 md:p-12 bg-gradient-to-r from-primary to-primary/80">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { value: '15', unit: 'Acres', label: 'Campus Area' },
-              { value: '100+', unit: '', label: 'Classrooms' },
-              { value: '25', unit: '', label: 'Bus Routes' },
-              { value: '500+', unit: '', label: 'CCTV Cameras' },
+              { value: '10', unit: 'Acres', label: 'Campus Area' },
+              { value: '40+', unit: '', label: 'Classrooms' },
+              { value: '0', unit: '', label: 'Bus Routes' },
+              { value: '10+', unit: '', label: 'CCTV Cameras' },
             ].map((stat) => (
               <div key={stat.label}>
                 <div className="text-3xl md:text-4xl font-display font-bold text-primary-foreground mb-1">
