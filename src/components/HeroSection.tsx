@@ -34,11 +34,16 @@ export const HeroSection = () => {
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-primary-foreground mb-6 leading-tight animate-fade-up delay-100">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-primary-foreground mb-6 leading-tight animate-fade-up delay-100">
+            श्री लोटन राम   {' '}
+            <span className="text-gradient">द्रौपदी देवी</span>{' '}
+            माध्यमिक विद्यालय विजय नगर-७, गणेशपुर
+          </h2>
+          <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-primary-foreground mb-6 leading-tight animate-fade-up delay-100">
             Lautan Ram {' '}
             <span className="text-gradient">Dropadi</span>{' '}
             Devi Secondary School
-          </h1>
+          </h3>
 
           {/* Subheading */}
           <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mx-auto mb-10 font-body leading-relaxed animate-fade-up delay-200">
