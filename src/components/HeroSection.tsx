@@ -34,16 +34,18 @@ export const HeroSection = () => {
           </div>
 
           {/* Main Heading */}
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-primary-foreground mb-6 leading-tight animate-fade-up delay-100">
-            श्री लोटन राम   {' '}
-            <span className="text-gradient">द्रौपदी देवी</span>{' '}
-            माध्यमिक विद्यालय  विजय नगर-७, गणेशपुर
-          </h2>
-          <h5 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-primary-foreground mb-6 leading-tight animate-fade-up delay-100">
-            Shree Lautan Ram {' '}
-            <span className="text-gradient">Dropadi Devi </span>{' '}
-             Secondary School  Bijaynagar -7, Ganeshpur
-          </h5>
+         <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold text-primary-foreground mb-4 leading-tight animate-fade-up delay-100">
+  श्री लोटन राम{' '}
+  <span className="text-gradient">द्रौपदी देवी</span>{' '}
+  माध्यमिक विद्यालय विजय नगर-७, गणेशपुर
+</h2>
+
+<h5 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-display font-bold text-primary-foreground mb-4 leading-tight animate-fade-up delay-100">
+  Shree Lautan Ram{' '}
+  <span className="text-gradient">Dropadi Devi</span>{' '}
+  Secondary School Bijaynagar-7, Ganeshpur
+</h5>
+
 
           {/* Subheading */}
           <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mx-auto mb-10 font-body leading-relaxed animate-fade-up delay-200">
