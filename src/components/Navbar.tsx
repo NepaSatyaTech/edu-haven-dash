@@ -93,13 +93,15 @@ export const Navbar = () => {
                 {link.name}
               </a>
             ))}
-            <Button
-              variant={scrolled ? 'default' : 'heroOutline'}
-              size="sm"
-              className="ml-4"
-            >
-              Admin Login
-            </Button>
+            <a href="/admin/login">
+              <Button
+                variant={scrolled ? 'default' : 'heroOutline'}
+                size="sm"
+                className="ml-4"
+              >
+                Admin Login
+              </Button>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
