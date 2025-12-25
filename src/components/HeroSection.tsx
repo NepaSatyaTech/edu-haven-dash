@@ -2,14 +2,20 @@ import { ArrowRight, BookOpen, Users, Award, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext'; // Assumes a language context
 
+// Function to convert numbers to Nepali digits
+function toNepaliNumber(number) {
+  const nepaliDigits = ['०','१','२','३','४','५','६','७','८','९'];
+  return number.toString().replace(/\d/g, d => nepaliDigits[d]);
+}
+
 export const HeroSection = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage(); // added language to check
 
   const stats = [
-    { icon: Users, value: '750+', label: t('Students', 'विद्यार्थीहरू') },
-    { icon: BookOpen, value: '40+', label: t('Expert Teachers', 'विशेषज्ञ शिक्षक') },
-    { icon: Award, value: '98%', label: t('Success Rate', 'सफलता दर') },
-    { icon: GraduationCapIcon, value: '50+', label: t('Years of Legacy', 'वर्षको विरासत') },
+    { icon: Users, value: language === 'ne' ? toNepaliNumber('750') + '+' : '750+', label: t('Students', 'विद्यार्थीहरू') },
+    { icon: BookOpen, value: language === 'ne' ? toNepaliNumber('40') + '+' : '40+', label: t('Expert Teachers', 'विशेषज्ञ शिक्षक') },
+    { icon: Award, value: language === 'ne' ? toNepaliNumber('98') + '%' : '98%', label: t('Success Rate', 'सफलता दर') },
+    { icon: GraduationCapIcon, value: language === 'ne' ? toNepaliNumber('50') + '+' : '50+', label: t('Years of Legacy', 'वर्षको विरासत') },
   ];
 
   return (
