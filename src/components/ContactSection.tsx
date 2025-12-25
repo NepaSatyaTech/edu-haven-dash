@@ -2,39 +2,12 @@ import { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-
-const contactInfo = [
-  {
-    icon: MapPin,
-    title: 'Address',
-    lines: ['Bijaynagar 7 , Ganeshpur', 'Kapilvastu, Nepal - 32900'],
-  },
-  {
-    icon: Phone,
-    title: 'Phone',
-    lines: ['977 9817425483', '+977 9878945612'],
-  },
-  {
-    icon: Mail,
-    title: 'Email',
-    lines: ['info@lautandropadidevi.edu', 'admissions@lautandropadidevi.edu'],
-  },
-  {
-    icon: Clock,
-    title: 'Office Hours',
-    lines: ['Sunday - Friday: 8:00 AM - 4:00 PM'],
-  },
-];
-
-const socialLinks = [
-  { icon: Facebook, href: '#', label: 'Facebook' },
-  { icon: Twitter, href: '#', label: 'Twitter' },
-  { icon: Instagram, href: '#', label: 'Instagram' },
-  { icon: Youtube, href: '#', label: 'YouTube' },
-];
+import { useLanguage } from '@/contexts/LanguageContext'; // Assume we have this context
 
 export const ContactSection = () => {
+  const { t } = useLanguage();
   const { toast } = useToast();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -46,11 +19,44 @@ export const ContactSection = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
-      title: 'Message Sent!',
-      description: "Thank you for reaching out. We'll respond within 24-48 hours.",
+      title: t('Message Sent!', 'सन्देश पठाइयो!'),
+      description: t(
+        "Thank you for reaching out. We'll respond within 24-48 hours.",
+        'सम्पर्क गर्नु भएकोमा धन्यवाद। हामी २४–४८ घण्टाभित्र जवाफ दिनेछौं।'
+      ),
     });
     setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
   };
+
+  const contactInfo = [
+    {
+      icon: MapPin,
+      title: t('Address', 'ठेगाना'),
+      lines: [t('Bijaynagar 7, Ganeshpur', 'विजयनगर ७, गणेशपुर'), t('Kapilvastu, Nepal - 32900', 'कपिलवस्तु, नेपाल - ३२९००')],
+    },
+    {
+      icon: Phone,
+      title: t('Phone', 'फोन'),
+      lines: ['977 9817425483', '+977 9878945612'],
+    },
+    {
+      icon: Mail,
+      title: t('Email', 'इमेल'),
+      lines: ['info@lautandropadidevi.edu', 'admissions@lautandropadidevi.edu'],
+    },
+    {
+      icon: Clock,
+      title: t('Office Hours', 'कार्यालय समय'),
+      lines: [t('Sunday - Friday: 8:00 AM - 4:00 PM', 'आइतबार - शुक्रबार: ८:०० बिहान - ४:०० अपराह्न')],
+    },
+  ];
+
+  const socialLinks = [
+    { icon: Facebook, href: '#', label: 'Facebook' },
+    { icon: Twitter, href: '#', label: 'Twitter' },
+    { icon: Instagram, href: '#', label: 'Instagram' },
+    { icon: Youtube, href: '#', label: 'YouTube' },
+  ];
 
   return (
     <section id="contact" className="section-padding bg-background">
@@ -58,12 +64,14 @@ export const ContactSection = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-semibold mb-4">
-            Contact Us
+            {t('Contact Us', 'सम्पर्क गर्नुहोस्')}
           </span>
-          <h2 className="section-title">Get In Touch</h2>
+          <h2 className="section-title">{t('Get In Touch', 'सम्पर्कमा आउनुहोस्')}</h2>
           <p className="section-subtitle">
-            Have questions? We'd love to hear from you. Reach out to us 
-            through any of the channels below.
+            {t(
+              "Have questions? We'd love to hear from you. Reach out to us through any of the channels below.",
+              'कुनै प्रश्न छ? हामी तपाईंको सम्पर्कको लागि उत्साहित छौं। तलका कुनै पनि माध्यमबाट हामीलाई सम्पर्क गर्नुहोस्।'
+            )}
           </p>
         </div>
 
@@ -76,9 +84,7 @@ export const ContactSection = () => {
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                     <info.icon className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="font-display font-bold text-foreground mb-2">
-                    {info.title}
-                  </h3>
+                  <h3 className="font-display font-bold text-foreground mb-2">{info.title}</h3>
                   {info.lines.map((line, index) => (
                     <p key={index} className="text-sm text-muted-foreground">
                       {line}
@@ -93,19 +99,15 @@ export const ContactSection = () => {
               <div className="w-full h-full rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
                 <div className="text-center">
                   <MapPin className="w-12 h-12 text-primary mx-auto mb-2" />
-                  <p className="text-muted-foreground">
-                    Interactive Map
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    123 Education Lane, Bijaynagar
-                  </p>
+                  <p className="text-muted-foreground">{t('Interactive Map', 'इन्टरएक्टिभ नक्शा')}</p>
+                  <p className="text-sm text-muted-foreground">{t('123 Education Lane, Bijaynagar', '१२३ एजुकेसन लेन, विजयनगर')}</p>
                 </div>
               </div>
             </div>
 
             {/* Social Links */}
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-muted-foreground">Follow Us:</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('Follow Us:', 'हामीलाई फलो गर्नुहोस्:')}</span>
               <div className="flex gap-3">
                 {socialLinks.map((social) => (
                   <a
@@ -124,13 +126,13 @@ export const ContactSection = () => {
           {/* Contact Form */}
           <div className="glass-card p-6 md:p-8">
             <h3 className="text-xl font-display font-bold text-foreground mb-6">
-              Send Us a Message
+              {t('Send Us a Message', 'हामीलाई सन्देश पठाउनुहोस्')}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Your Name *
+                    {t('Your Name *', 'तपाईंको नाम *')}
                   </label>
                   <input
                     type="text"
@@ -138,12 +140,12 @@ export const ContactSection = () => {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    placeholder="Enter your name"
+                    placeholder={t('Enter your name', 'तपाईंको नाम लेख्नुहोस्')}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Email *
+                    {t('Email *', 'इमेल *')}
                   </label>
                   <input
                     type="email"
@@ -151,7 +153,7 @@ export const ContactSection = () => {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    placeholder="Enter your email"
+                    placeholder={t('Enter your email', 'तपाईंको इमेल लेख्नुहोस्')}
                   />
                 </div>
               </div>
@@ -159,19 +161,19 @@ export const ContactSection = () => {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Phone
+                    {t('Phone', 'फोन')}
                   </label>
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    placeholder="Enter phone number"
+                    placeholder={t('Enter phone number', 'फोन नम्बर लेख्नुहोस्')}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Subject *
+                    {t('Subject *', 'विषय *')}
                   </label>
                   <select
                     required
@@ -179,19 +181,19 @@ export const ContactSection = () => {
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   >
-                    <option value="">Select Subject</option>
-                    <option value="admission">Admission Inquiry</option>
-                    <option value="academic">Academic Query</option>
-                    <option value="fee">Fee Related</option>
-                    <option value="transport">Transportation</option>
-                    <option value="other">Other</option>
+                    <option value="">{t('Select Subject', 'विषय छान्नुहोस्')}</option>
+                    <option value="admission">{t('Admission Inquiry', 'भर्ना सम्बन्धी प्रश्न')}</option>
+                    <option value="academic">{t('Academic Query', 'शैक्षिक प्रश्न')}</option>
+                    <option value="fee">{t('Fee Related', 'शुल्क सम्बन्धी')}</option>
+                    <option value="transport">{t('Transportation', 'परिवहन')}</option>
+                    <option value="other">{t('Other', 'अन्य')}</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Message *
+                  {t('Message *', 'सन्देश *')}
                 </label>
                 <textarea
                   required
@@ -199,13 +201,13 @@ export const ContactSection = () => {
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   rows={5}
                   className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
-                  placeholder="Write your message here..."
+                  placeholder={t('Write your message here...', 'यहाँ तपाईंको सन्देश लेख्नुहोस्...')}
                 />
               </div>
 
               <Button type="submit" variant="gold" size="lg" className="w-full gap-2">
                 <Send className="w-4 h-4" />
-                Send Message
+                {t('Send Message', 'सन्देश पठाउनुहोस्')}
               </Button>
             </form>
           </div>
