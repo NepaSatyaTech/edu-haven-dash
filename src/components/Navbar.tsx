@@ -1,22 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const navLinks = [
-  { name: 'Home', href: '#home' },
-  { name: 'About', href: '#about' },
-  { name: 'Academics', href: '#academics' },
-  { name: 'Admissions', href: '#admissions' },
-  { name: 'Faculty', href: '#faculty' },
-  { name: 'Facilities', href: '#facilities' },
-  { name: 'Gallery', href: '#gallery' },
-  { name: 'Notices', href: '#notices' },
-  { name: 'Contact', href: '#contact' },
+  { name: 'Home', nameNe: 'गृहपृष्ठ', href: '#home' },
+  { name: 'About', nameNe: 'हाम्रो बारेमा', href: '#about' },
+  { name: 'Academics', nameNe: 'शैक्षिक', href: '#academics' },
+  { name: 'Admissions', nameNe: 'भर्ना', href: '#admissions' },
+  { name: 'Faculty', nameNe: 'शिक्षक', href: '#faculty' },
+  { name: 'Facilities', nameNe: 'सुविधाहरू', href: '#facilities' },
+  { name: 'Gallery', nameNe: 'ग्यालरी', href: '#gallery' },
+  { name: 'Notices', nameNe: 'सूचनाहरू', href: '#notices' },
+  { name: 'Contact', nameNe: 'सम्पर्क', href: '#contact' },
 ];
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,6 +34,10 @@ export const Navbar = () => {
       element.scrollIntoView({ behavior: 'smooth' });
     }
     setIsOpen(false);
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'ne' : 'en');
   };
 
   return (
@@ -57,12 +63,12 @@ export const Navbar = () => {
               <span className={`text-xl font-display font-bold tracking-tight transition-colors ${
                 scrolled ? 'text-foreground' : 'text-primary-foreground'
               }`}>
-                Lautan Ram Dropadi Devi
+                {t('Lautan Ram Dropadi Devi', 'लोटन राम द्रौपदी देवी')}
               </span>
               <span className={`text-xs font-body tracking-wider transition-colors ${
                 scrolled ? 'text-muted-foreground' : 'text-primary-foreground/70'
               }`}>
-                Excellence in Education
+                {t('Excellence in Education', 'शिक्षामा उत्कृष्टता')}
               </span>
             </div>
           </a>
@@ -83,16 +89,30 @@ export const Navbar = () => {
                     : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10'
                 }`}
               >
-                {link.name}
+                {language === 'ne' ? link.nameNe : link.name}
               </a>
             ))}
+            
+            {/* Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                scrolled
+                  ? 'text-foreground hover:bg-primary/10'
+                  : 'text-primary-foreground/90 hover:bg-primary-foreground/10'
+              }`}
+            >
+              <Globe className="h-4 w-4" />
+              <span>{language === 'en' ? 'नेपाली' : 'EN'}</span>
+            </button>
+
             <a href="/admin/login">
               <Button
                 variant={scrolled ? 'default' : 'heroOutline'}
                 size="sm"
-                className="ml-4"
+                className="ml-2"
               >
-                Admin Login
+                {t('Admin Login', 'व्यवस्थापक लगइन')}
               </Button>
             </a>
           </div>
@@ -128,13 +148,25 @@ export const Navbar = () => {
                 }}
                 className="block px-4 py-3 rounded-xl text-foreground font-medium transition-colors hover:bg-primary/10 hover:text-primary"
               >
-                {link.name}
+                {language === 'ne' ? link.nameNe : link.name}
               </a>
             ))}
+            
+            {/* Mobile Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-2 w-full px-4 py-3 rounded-xl text-foreground font-medium transition-colors hover:bg-primary/10"
+            >
+              <Globe className="h-4 w-4" />
+              {language === 'en' ? 'नेपाली भाषा' : 'English Language'}
+            </button>
+            
             <div className="pt-2 px-2">
-              <Button variant="default" className="w-full">
-                Admin Login
-              </Button>
+              <a href="/admin/login">
+                <Button variant="default" className="w-full">
+                  {t('Admin Login', 'व्यवस्थापक लगइन')}
+                </Button>
+              </a>
             </div>
           </div>
         </div>

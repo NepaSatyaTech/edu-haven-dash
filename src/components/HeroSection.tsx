@@ -1,7 +1,26 @@
 import { ArrowRight, BookOpen, Users, Award, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 export const HeroSection = () => {
+  const { language, t } = useLanguage();
+  const { data: settings, isLoading } = useSiteSettings();
+
+  const getSettingValue = (key: string) => {
+    if (!settings?.[key]) return '';
+    return language === 'ne' && settings[key].value_ne 
+      ? settings[key].value_ne 
+      : settings[key].value_en;
+  };
+
+  const stats = [
+    { icon: Users, value: getSettingValue('hero_students') || '750+', label: t('Students', 'विद्यार्थीहरू') },
+    { icon: BookOpen, value: getSettingValue('hero_faculty') || '40+', label: t('Expert Faculty', 'विशेषज्ञ शिक्षक') },
+    { icon: Award, value: getSettingValue('hero_success_rate') || '98%', label: t('Success Rate', 'सफलता दर') },
+    { icon: GraduationCapIcon, value: getSettingValue('hero_years_legacy') || '50+', label: t('Years Legacy', 'वर्षको विरासत') },
+  ];
+
   return (
     <section
       id="home"
@@ -30,50 +49,49 @@ export const HeroSection = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 text-primary-foreground/90 text-sm font-medium mb-8 animate-fade-up">
             <Award className="h-4 w-4 text-secondary" />
-            <span>Ranked #1 in Academic Excellence 2024</span>
+            <span>{t('Ranked #1 in Academic Excellence 2024', '२०२४ मा शैक्षिक उत्कृष्टतामा #१')}</span>
           </div>
 
           {/* Main Heading */}
-         <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold text-primary-foreground mb-4 leading-tight animate-fade-up delay-100">
-  श्री लोटन राम{' '}
-  <span className="text-gradient">द्रौपदी देवी</span>{' '}
-  माध्यमिक विद्यालय विजय नगर-७, गणेशपुर
-</h2>
-
-<h5 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-display font-bold text-primary-foreground mb-4 leading-tight animate-fade-up delay-100">
-  Shree Lautan Ram{' '}
-  <span className="text-gradient">Dropadi Devi</span>{' '}
-  Secondary School Bijaynagar-7, Ganeshpur
-</h5>
-
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold text-primary-foreground mb-4 leading-tight animate-fade-up delay-100">
+            {language === 'ne' ? (
+              <>
+                {getSettingValue('school_name_ne') || 'श्री लोटन राम द्रौपदी देवी माध्यमिक विद्यालय'}
+                <br />
+                <span className="text-gradient">{getSettingValue('school_address') || 'विजय नगर-७, गणेशपुर'}</span>
+              </>
+            ) : (
+              <>
+                {getSettingValue('school_name_en') || 'Shree Lautan Ram Dropadi Devi Secondary School'}
+                <br />
+                <span className="text-gradient">{settings?.['school_address']?.value_en || 'Bijaynagar-7, Ganeshpur'}</span>
+              </>
+            )}
+          </h2>
 
           {/* Subheading */}
           <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mx-auto mb-10 font-body leading-relaxed animate-fade-up delay-200">
-            Welcome to Lautan Ram Dropadi Devi Secondary School, where tradition meets innovation. 
-            We nurture young minds with world-class education, holistic development, 
-            and values that last a lifetime.
+            {t(
+              'Welcome to Lautan Ram Dropadi Devi Secondary School, where tradition meets innovation. We nurture young minds with world-class education, holistic development, and values that last a lifetime.',
+              'लोटन राम द्रौपदी देवी माध्यमिक विद्यालयमा स्वागत छ, जहाँ परम्परा र नवीनता भेट्छन्। हामी विश्वस्तरीय शिक्षा, समग्र विकास, र जीवनभर टिक्ने मूल्यहरूद्वारा युवा मनहरूको पालनपोषण गर्छौं।'
+            )}
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-up delay-300">
             <Button variant="hero" size="xl" className="group">
-              Apply Now
+              {t('Apply Now', 'अहिले आवेदन दिनुहोस्')}
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button variant="heroOutline" size="xl">
               <Play className="h-5 w-5" />
-              Virtual Tour
+              {t('Virtual Tour', 'भर्चुअल भ्रमण')}
             </Button>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 animate-fade-up delay-400">
-            {[
-              { icon: Users, value: '750+', label: 'Students' },
-              { icon: BookOpen, value: '40+', label: 'Expert Faculty' },
-              { icon: Award, value: '98%', label: 'Success Rate' },
-              { icon: GraduationCapIcon, value: '50+', label: 'Years Legacy' },
-            ].map((stat, index) => (
+            {stats.map((stat) => (
               <div
                 key={stat.label}
                 className="group p-4 md:p-6 rounded-2xl bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 hover:bg-primary-foreground/10 transition-all duration-300"

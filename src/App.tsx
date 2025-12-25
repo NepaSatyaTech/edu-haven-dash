@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
@@ -15,33 +16,37 @@ import AdminGallery from "./pages/admin/AdminGallery";
 import AdminFaculty from "./pages/admin/AdminFaculty";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminAdmissions from "./pages/admin/AdminAdmissions";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="notices" element={<AdminNotices />} />
-              <Route path="events" element={<AdminEvents />} />
-              <Route path="gallery" element={<AdminGallery />} />
-              <Route path="faculty" element={<AdminFaculty />} />
-              <Route path="messages" element={<AdminMessages />} />
-              <Route path="admissions" element={<AdminAdmissions />} />
-            </Route>
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
+      <LanguageProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="notices" element={<AdminNotices />} />
+                <Route path="events" element={<AdminEvents />} />
+                <Route path="gallery" element={<AdminGallery />} />
+                <Route path="faculty" element={<AdminFaculty />} />
+                <Route path="messages" element={<AdminMessages />} />
+                <Route path="admissions" element={<AdminAdmissions />} />
+                <Route path="settings" element={<AdminSettings />} />
+              </Route>
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

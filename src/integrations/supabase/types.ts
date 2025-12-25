@@ -121,6 +121,7 @@ export type Database = {
       }
       faculty: {
         Row: {
+          bio: string | null
           created_at: string
           department: string | null
           designation: string
@@ -135,6 +136,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          bio?: string | null
           created_at?: string
           department?: string | null
           designation: string
@@ -149,6 +151,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          bio?: string | null
           created_at?: string
           department?: string | null
           designation?: string
@@ -218,6 +221,33 @@ export type Database = {
           is_published?: boolean
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value_en: string
+          value_ne: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value_en: string
+          value_ne?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value_en?: string
+          value_ne?: string | null
         }
         Relationships: []
       }
