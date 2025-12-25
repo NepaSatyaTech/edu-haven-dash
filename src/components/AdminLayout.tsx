@@ -13,12 +13,14 @@ import {
   X,
   LogOut,
   ChevronRight,
+  Settings,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { name: 'Site Settings', href: '/admin/settings', icon: Settings },
   { name: 'Notices', href: '/admin/notices', icon: Bell },
   { name: 'Events', href: '/admin/events', icon: Calendar },
   { name: 'Gallery', href: '/admin/gallery', icon: Image },
