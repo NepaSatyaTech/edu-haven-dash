@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,19 +10,41 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, isAdmin, user } = useAuth();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const { signIn, signUp, isAdmin, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // Redirect if already logged in as admin
-  if (user && isAdmin) {
-    navigate('/admin');
-    return null;
-  }
+  useEffect(() => {
+    if (user && isAdmin) {
+      navigate('/admin');
+    }
+  }, [user, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if (isSignUp) {
+      const { error } = await signUp(email, password);
+      if (error) {
+        toast({
+          title: 'Sign Up Failed',
+          description: error.message || 'Failed to create account',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+      toast({
+        title: 'Account Created',
+        description: 'Your account has been created. Please wait for admin role assignment.',
+      });
+      setIsLoading(false);
+      setIsSignUp(false);
+      return;
+    }
 
     const { error } = await signIn(email, password);
 
@@ -36,13 +58,11 @@ const AdminLogin = () => {
       return;
     }
 
-    // Check if user has admin role - this will be done in useEffect of AuthContext
     toast({
       title: 'Login Successful',
       description: 'Checking admin privileges...',
     });
 
-    // Wait a moment for the role check to complete
     setTimeout(() => {
       setIsLoading(false);
       navigate('/admin');
@@ -72,7 +92,7 @@ const AdminLogin = () => {
             Admin Portal
           </h1>
           <p className="text-muted-foreground mt-2">
-            Sign in to access the admin dashboard
+            {isSignUp ? 'Create your admin account' : 'Sign in to access the admin dashboard'}
           </p>
         </div>
 
@@ -91,7 +111,7 @@ const AdminLogin = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                  placeholder="admin@sunriseacademy.edu"
+                  placeholder="admin@school.edu.np"
                 />
               </div>
             </div>
@@ -105,6 +125,7 @@ const AdminLogin = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
+                  minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-12 pr-12 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
@@ -131,13 +152,23 @@ const AdminLogin = () => {
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading ? 'Signing In...' : 'Sign In'}
+              {isLoading ? (isSignUp ? 'Creating Account...' : 'Signing In...') : (isSignUp ? 'Create Account' : 'Sign In')}
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-muted-foreground">
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-sm text-primary hover:underline"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+            </button>
+          </div>
+
+          <div className="mt-4 text-center text-sm text-muted-foreground">
             <p>
-              Contact IT support if you need access.
+              Contact IT support if you need admin access.
             </p>
           </div>
         </div>
