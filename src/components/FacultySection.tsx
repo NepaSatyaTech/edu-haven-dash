@@ -1,13 +1,28 @@
-import { Mail } from 'lucide-react';
+import { Mail, GraduationCap, User } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+interface FacultyMember {
+  id: string;
+  name: string;
+  designation: string;
+  qualification: string | null;
+  passed_out_college: string | null;
+  email: string | null;
+  phone: string | null;
+  department: string | null;
+  image_url: string | null;
+  bio: string | null;
+  is_active: boolean;
+  display_order: number;
+}
+
 export const FacultySection = () => {
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
 
   const { data: facultyMembers = [] } = useQuery({
-    queryKey: ['faculty-public', language],
+    queryKey: ['faculty-public'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('faculty')
@@ -15,15 +30,9 @@ export const FacultySection = () => {
         .eq('is_active', true)
         .order('display_order', { ascending: true });
       if (error) throw error;
-      return data;
+      return data as FacultyMember[];
     },
   });
-
-  const getText = (member: any, key: string) => {
-    return language === 'ne'
-      ? member[`${key}_ne`] || member[`${key}_en`]
-      : member[`${key}_en`];
-  };
 
   const getInitials = (name: string) =>
     name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
@@ -59,42 +68,46 @@ export const FacultySection = () => {
         </div>
 
         {/* Faculty Cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {facultyMembers.map((member: any, index: number) => {
-            const name = getText(member, 'name');
-
-            return (
+        {facultyMembers.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              {t('Faculty information coming soon.', 'शिक्षकहरूको जानकारी छिट्टै आउँदैछ।')}
+            </p>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {facultyMembers.map((member, index) => (
               <div
                 key={member.id}
                 className="group glass-card overflow-hidden hover:shadow-card-hover transition-all duration-500 hover:-translate-y-2"
               >
-                <div className="relative h-48 overflow-hidden">
+                {/* Photo Section */}
+                <div className="relative h-56 overflow-hidden">
                   {member.image_url ? (
                     <img
                       src={member.image_url}
-                      alt={name}
-                      className="w-full h-full object-cover"
+                      alt={member.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
                     <>
                       <div
-                        className={`absolute inset-0 bg-gradient-to-br ${
-                          colors[index % colors.length]
-                        } opacity-90`}
+                        className={`absolute inset-0 bg-gradient-to-br ${colors[index % colors.length]} opacity-90`}
                       />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-5xl font-display font-bold text-white/90">
-                          {getInitials(name)}
+                          {getInitials(member.name)}
                         </span>
                       </div>
                     </>
                   )}
 
+                  {/* Hover overlay with email */}
                   {member.email && (
                     <div className="absolute inset-0 bg-foreground/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <a
                         href={`mailto:${member.email}`}
-                        className="w-10 h-10 rounded-full bg-card flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                        className="w-12 h-12 rounded-full bg-card flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
                       >
                         <Mail className="w-5 h-5" />
                       </a>
@@ -102,21 +115,46 @@ export const FacultySection = () => {
                   )}
                 </div>
 
-                <div className="p-5 text-center">
-                  <h3 className="font-display font-bold text-lg mb-1">
-                    {name}
+                {/* Info Section */}
+                <div className="p-5">
+                  {/* Name */}
+                  <h3 className="font-display font-bold text-lg text-foreground mb-1">
+                    {member.name}
                   </h3>
-                  <p className="text-primary text-sm font-semibold mb-2">
-                    {getText(member, 'designation')}
+                  
+                  {/* Designation */}
+                  <p className="text-primary text-sm font-semibold mb-3">
+                    {member.designation}
                   </p>
-                  <p className="text-muted-foreground text-xs">
-                    {getText(member, 'qualification')}
-                  </p>
+                  
+                  {/* Degree/Qualification */}
+                  {member.qualification && (
+                    <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
+                      <GraduationCap className="w-4 h-4 flex-shrink-0" />
+                      <span>{member.qualification}</span>
+                    </div>
+                  )}
+                  
+                  {/* Passed Out College */}
+                  {member.passed_out_college && (
+                    <p className="text-muted-foreground text-xs mt-1">
+                      {t('From:', 'बाट:')} {member.passed_out_college}
+                    </p>
+                  )}
+                  
+                  {/* Department Badge */}
+                  {member.department && (
+                    <div className="mt-3">
+                      <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                        {member.department}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Footer */}
         <div className="mt-16 text-center">

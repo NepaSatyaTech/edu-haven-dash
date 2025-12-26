@@ -1,99 +1,50 @@
 import { useState } from 'react';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+
+interface GalleryImage {
+  id: string;
+  title: string;
+  image_url: string;
+  category: string;
+  is_published: boolean;
+}
 
 export const GallerySection = () => {
   const { t } = useLanguage();
 
-  const categories = [
-    t('All', 'सबै'),
-    t('Campus', 'क्याम्पस'),
-    t('Events', 'कार्यक्रम'),
-    t('Sports', 'खेलकुद'),
-    t('Academic', 'शैक्षिक'),
-    t('Cultural', 'सांस्कृतिक'),
-  ];
+  const categoryMap: Record<string, string> = {
+    'All': t('All', 'सबै'),
+    'Campus': t('Campus', 'क्याम्पस'),
+    'Events': t('Events', 'कार्यक्रम'),
+    'Sports': t('Sports', 'खेलकुद'),
+    'Academic': t('Academic', 'शैक्षिक'),
+    'Cultural': t('Cultural', 'सांस्कृतिक'),
+    'General': t('General', 'सामान्य'),
+  };
 
-  const galleryImages = [
-    {
-      id: 1,
-      category: t('Campus', 'क्याम्पस'),
-      title: t('Main Building', 'मुख्य भवन'),
-      color: 'from-blue-400 to-blue-600',
-    },
-    {
-      id: 2,
-      category: t('Events', 'कार्यक्रम'),
-      title: t('Annual Day 2082', 'वार्षिकोत्सव २०८२'),
-      color: 'from-purple-400 to-purple-600',
-    },
-    {
-      id: 3,
-      category: t('Sports', 'खेलकुद'),
-      title: t('Sports Day', 'खेलकुद दिवस'),
-      color: 'from-green-400 to-green-600',
-    },
-    {
-      id: 4,
-      category: t('Academic', 'शैक्षिक'),
-      title: t('Science Lab', 'विज्ञान प्रयोगशाला'),
-      color: 'from-amber-400 to-amber-600',
-    },
-    {
-      id: 5,
-      category: t('Cultural', 'सांस्कृतिक'),
-      title: t('Dance Performance', 'नृत्य प्रस्तुति'),
-      color: 'from-pink-400 to-pink-600',
-    },
-    {
-      id: 6,
-      category: t('Campus', 'क्याम्पस'),
-      title: t('Library', 'पुस्तकालय'),
-      color: 'from-teal-400 to-teal-600',
-    },
-    {
-      id: 7,
-      category: t('Events', 'कार्यक्रम'),
-      title: t('National Unity Day', 'राष्ट्रिय एकता दिवस'),
-      color: 'from-orange-400 to-orange-600',
-    },
-    {
-      id: 8,
-      category: t('Sports', 'खेलकुद'),
-      title: t('Cricket Match', 'क्रिकेट प्रतियोगिता'),
-      color: 'from-red-400 to-red-600',
-    },
-    {
-      id: 9,
-      category: t('Academic', 'शैक्षिक'),
-      title: t('Computer Lab', 'कम्प्युटर प्रयोगशाला'),
-      color: 'from-indigo-400 to-indigo-600',
-    },
-    {
-      id: 10,
-      category: t('Cultural', 'सांस्कृतिक'),
-      title: t('Music Concert', 'सांगीतिक कार्यक्रम'),
-      color: 'from-rose-400 to-rose-600',
-    },
-    {
-      id: 11,
-      category: t('Campus', 'क्याम्पस'),
-      title: t('Playground', 'खेल मैदान'),
-      color: 'from-emerald-400 to-emerald-600',
-    },
-    {
-      id: 12,
-      category: t('Events', 'कार्यक्रम'),
-      title: t('Graduation Day', 'दीक्षान्त समारोह'),
-      color: 'from-violet-400 to-violet-600',
-    },
-  ];
+  const categories = ['All', 'Campus', 'Events', 'Sports', 'Academic', 'Cultural', 'General'];
 
-  const [activeCategory, setActiveCategory] = useState(categories[0]);
-  const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const { data: galleryImages = [] } = useQuery({
+    queryKey: ['gallery-public'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('gallery')
+        .select('*')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data as GalleryImage[];
+    },
+  });
+
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const filteredImages =
-    activeCategory === t('All', 'सबै')
+    activeCategory === 'All'
       ? galleryImages
       : galleryImages.filter((img) => img.category === activeCategory);
 
@@ -106,11 +57,21 @@ export const GallerySection = () => {
     if (currentIndex === -1) return;
     const newIndex =
       direction === 'prev'
-        ? (currentIndex - 1 + filteredImages.length) %
-          filteredImages.length
+        ? (currentIndex - 1 + filteredImages.length) % filteredImages.length
         : (currentIndex + 1) % filteredImages.length;
     setSelectedImage(filteredImages[newIndex].id);
   };
+
+  const colors = [
+    'from-blue-400 to-blue-600',
+    'from-purple-400 to-purple-600',
+    'from-green-400 to-green-600',
+    'from-amber-400 to-amber-600',
+    'from-pink-400 to-pink-600',
+    'from-teal-400 to-teal-600',
+    'from-orange-400 to-orange-600',
+    'from-red-400 to-red-600',
+  ];
 
   return (
     <section id="gallery" className="section-padding bg-background">
@@ -143,61 +104,77 @@ export const GallerySection = () => {
                   : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
               }`}
             >
-              {category}
+              {categoryMap[category] || category}
             </button>
           ))}
         </div>
 
         {/* Gallery Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filteredImages.map((image, index) => (
-            <div
-              key={image.id}
-              onClick={() => setSelectedImage(image.id)}
-              className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer"
-            >
+        {filteredImages.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              {t('No images available yet.', 'अहिलेसम्म कुनै तस्वीर उपलब्ध छैन।')}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredImages.map((image, index) => (
               <div
-                className={`absolute inset-0 bg-gradient-to-br ${image.color}`}
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-display font-bold text-white/80">
-                  {image.title.charAt(0)}
-                </span>
-              </div>
+                key={image.id}
+                onClick={() => setSelectedImage(image.id)}
+                className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer"
+              >
+                {image.image_url ? (
+                  <img
+                    src={image.image_url}
+                    alt={image.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <>
+                    <div className={`absolute inset-0 bg-gradient-to-br ${colors[index % colors.length]}`} />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl font-display font-bold text-white/80">
+                        {image.title.charAt(0)}
+                      </span>
+                    </div>
+                  </>
+                )}
 
-              <div className="absolute inset-0 bg-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4">
-                <ZoomIn className="w-8 h-8 text-white mb-2" />
-                <p className="text-white font-semibold text-center text-sm">
-                  {image.title}
-                </p>
-                <span className="text-white/70 text-xs mt-1">
-                  {image.category}
-                </span>
+                <div className="absolute inset-0 bg-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4">
+                  <ZoomIn className="w-8 h-8 text-white mb-2" />
+                  <p className="text-white font-semibold text-center text-sm">
+                    {image.title}
+                  </p>
+                  <span className="text-white/70 text-xs mt-1">
+                    {categoryMap[image.category] || image.category}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Lightbox */}
         {selectedImage !== null && (
           <div className="fixed inset-0 z-50 bg-foreground/95 flex items-center justify-center p-4">
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-4 right-4 w-12 h-12 rounded-full bg-card/20 flex items-center justify-center"
+              className="absolute top-4 right-4 w-12 h-12 rounded-full bg-card/20 flex items-center justify-center text-white"
             >
               <X className="w-6 h-6" />
             </button>
 
             <button
               onClick={() => navigateImage('prev')}
-              className="absolute left-4 w-12 h-12 rounded-full bg-card/20 flex items-center justify-center"
+              className="absolute left-4 w-12 h-12 rounded-full bg-card/20 flex items-center justify-center text-white"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
 
             <button
               onClick={() => navigateImage('next')}
-              className="absolute right-4 w-12 h-12 rounded-full bg-card/20 flex items-center justify-center"
+              className="absolute right-4 w-12 h-12 rounded-full bg-card/20 flex items-center justify-center text-white"
             >
               <ChevronRight className="w-6 h-6" />
             </button>
@@ -206,16 +183,35 @@ export const GallerySection = () => {
               {filteredImages.map(
                 (image) =>
                   image.id === selectedImage && (
-                    <div
-                      key={image.id}
-                      className={`w-full h-full bg-gradient-to-br ${image.color} flex items-center justify-center`}
-                    >
-                      <div className="text-center text-white">
-                        <h3 className="text-2xl font-display font-bold">
-                          {image.title}
-                        </h3>
-                        <p className="text-white/70">{image.category}</p>
-                      </div>
+                    <div key={image.id} className="w-full h-full relative">
+                      {image.image_url ? (
+                        <>
+                          <img
+                            src={image.image_url}
+                            alt={image.title}
+                            className="w-full h-full object-contain bg-black"
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                            <h3 className="text-xl font-display font-bold text-white">
+                              {image.title}
+                            </h3>
+                            <p className="text-white/70">
+                              {categoryMap[image.category] || image.category}
+                            </p>
+                          </div>
+                        </>
+                      ) : (
+                        <div className={`w-full h-full bg-gradient-to-br ${colors[0]} flex items-center justify-center`}>
+                          <div className="text-center text-white">
+                            <h3 className="text-2xl font-display font-bold">
+                              {image.title}
+                            </h3>
+                            <p className="text-white/70">
+                              {categoryMap[image.category] || image.category}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )
               )}

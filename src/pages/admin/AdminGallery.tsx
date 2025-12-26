@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Eye, EyeOff, Upload, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff, Upload, Image as ImageIcon, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -18,12 +18,14 @@ const AdminGallery = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     category: 'Campus',
     is_published: true,
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
   const categories = ['Campus', 'Events', 'Sports', 'Academic', 'Cultural', 'General'];
@@ -48,22 +50,44 @@ const AdminGallery = () => {
     fetchImages();
   }, []);
 
+  const openModal = (image?: GalleryImage) => {
+    if (image) {
+      setEditingImage(image);
+      setFormData({
+        title: image.title,
+        category: image.category,
+        is_published: image.is_published,
+      });
+      setPreviewUrl(image.image_url);
+    } else {
+      setEditingImage(null);
+      setFormData({ title: '', category: 'Campus', is_published: true });
+      setPreviewUrl(null);
+    }
+    setSelectedFile(null);
+    setIsModalOpen(true);
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
+    setEditingImage(null);
     setFormData({ title: '', category: 'Campus', is_published: true });
     setSelectedFile(null);
+    setPreviewUrl(null);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedFile) {
+    if (!editingImage && !selectedFile) {
       toast({ title: 'Error', description: 'Please select an image', variant: 'destructive' });
       return;
     }
@@ -71,38 +95,61 @@ const AdminGallery = () => {
     setIsUploading(true);
 
     try {
-      // Upload image to storage
-      const fileExt = selectedFile.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `images/${fileName}`;
+      let imageUrl = editingImage?.image_url || '';
 
-      const { error: uploadError } = await supabase.storage
-        .from('gallery')
-        .upload(filePath, selectedFile);
+      // Upload new image if selected
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `images/${fileName}`;
 
-      if (uploadError) throw uploadError;
+        const { error: uploadError } = await supabase.storage
+          .from('gallery')
+          .upload(filePath, selectedFile);
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('gallery')
-        .getPublicUrl(filePath);
+        if (uploadError) throw uploadError;
 
-      // Insert into gallery table
-      const { error: insertError } = await supabase.from('gallery').insert([{
-        title: formData.title,
-        image_url: publicUrl,
-        category: formData.category,
-        is_published: formData.is_published,
-      }]);
+        const { data: { publicUrl } } = supabase.storage
+          .from('gallery')
+          .getPublicUrl(filePath);
 
-      if (insertError) throw insertError;
+        imageUrl = publicUrl;
+      }
 
-      toast({ title: 'Success', description: 'Image uploaded successfully' });
+      if (editingImage) {
+        // Update existing image
+        const { error: updateError } = await supabase
+          .from('gallery')
+          .update({
+            title: formData.title,
+            category: formData.category,
+            is_published: formData.is_published,
+            ...(selectedFile && { image_url: imageUrl }),
+          })
+          .eq('id', editingImage.id);
+
+        if (updateError) throw updateError;
+
+        toast({ title: 'Success', description: 'Image updated successfully' });
+      } else {
+        // Insert new image
+        const { error: insertError } = await supabase.from('gallery').insert([{
+          title: formData.title,
+          image_url: imageUrl,
+          category: formData.category,
+          is_published: formData.is_published,
+        }]);
+
+        if (insertError) throw insertError;
+
+        toast({ title: 'Success', description: 'Image uploaded successfully' });
+      }
+
       fetchImages();
       closeModal();
     } catch (error) {
-      console.error('Error uploading image:', error);
-      toast({ title: 'Error', description: 'Failed to upload image', variant: 'destructive' });
+      console.error('Error saving image:', error);
+      toast({ title: 'Error', description: 'Failed to save image', variant: 'destructive' });
     } finally {
       setIsUploading(false);
     }
@@ -154,7 +201,7 @@ const AdminGallery = () => {
           <h1 className="text-2xl font-display font-bold text-foreground">Gallery</h1>
           <p className="text-muted-foreground">Manage school gallery images</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2">
+        <Button onClick={() => openModal()} className="gap-2">
           <Upload className="w-4 h-4" />
           Upload Image
         </Button>
@@ -187,6 +234,12 @@ const AdminGallery = () => {
               </div>
               <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
+                  onClick={() => openModal(image)}
+                  className="p-2 rounded-lg bg-card/80 backdrop-blur-sm text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+                <button
                   onClick={() => togglePublished(image)}
                   className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${
                     image.is_published
@@ -208,12 +261,14 @@ const AdminGallery = () => {
         </div>
       )}
 
-      {/* Upload Modal */}
+      {/* Upload/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-foreground/50 flex items-center justify-center p-4">
           <div className="bg-card rounded-2xl shadow-elevated max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-border">
-              <h2 className="text-xl font-display font-bold text-foreground">Upload Image</h2>
+              <h2 className="text-xl font-display font-bold text-foreground">
+                {editingImage ? 'Edit Image' : 'Upload Image'}
+              </h2>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
@@ -240,13 +295,15 @@ const AdminGallery = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Image *</label>
-                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                  {selectedFile ? (
-                    <div>
-                      <p className="text-foreground font-medium">{selectedFile.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Image {editingImage ? '(leave empty to keep current)' : '*'}
+                </label>
+                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center relative">
+                  {previewUrl ? (
+                    <div className="relative">
+                      <img src={previewUrl} alt="Preview" className="max-h-48 mx-auto rounded-lg" />
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {selectedFile ? selectedFile.name : 'Current image'}
                       </p>
                     </div>
                   ) : (
@@ -260,7 +317,6 @@ const AdminGallery = () => {
                     accept="image/*"
                     onChange={handleFileChange}
                     className="absolute inset-0 opacity-0 cursor-pointer"
-                    style={{ position: 'relative' }}
                   />
                 </div>
               </div>
@@ -281,7 +337,7 @@ const AdminGallery = () => {
                   Cancel
                 </Button>
                 <Button type="submit" className="flex-1" disabled={isUploading}>
-                  {isUploading ? 'Uploading...' : 'Upload'}
+                  {isUploading ? 'Saving...' : editingImage ? 'Update' : 'Upload'}
                 </Button>
               </div>
             </form>
