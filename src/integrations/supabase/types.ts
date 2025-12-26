@@ -131,6 +131,7 @@ export type Database = {
           image_url: string | null
           is_active: boolean
           name: string
+          passed_out_college: string | null
           phone: string | null
           qualification: string | null
           updated_at: string
@@ -146,6 +147,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           name: string
+          passed_out_college?: string | null
           phone?: string | null
           qualification?: string | null
           updated_at?: string
@@ -161,6 +163,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           name?: string
+          passed_out_college?: string | null
           phone?: string | null
           qualification?: string | null
           updated_at?: string

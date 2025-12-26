@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, Upload, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -9,9 +9,12 @@ interface Faculty {
   name: string;
   designation: string;
   qualification: string | null;
+  passed_out_college: string | null;
   email: string | null;
   phone: string | null;
   department: string | null;
+  image_url: string | null;
+  bio: string | null;
   is_active: boolean;
   display_order: number;
   created_at: string;
@@ -21,14 +24,19 @@ const AdminFaculty = () => {
   const [faculty, setFaculty] = useState<Faculty[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState<Faculty | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     designation: '',
     qualification: '',
+    passed_out_college: '',
     email: '',
     phone: '',
     department: '',
+    bio: '',
     is_active: true,
     display_order: 0,
   });
@@ -63,82 +71,162 @@ const AdminFaculty = () => {
         name: member.name,
         designation: member.designation,
         qualification: member.qualification || '',
+        passed_out_college: member.passed_out_college || '',
         email: member.email || '',
         phone: member.phone || '',
         department: member.department || '',
+        bio: member.bio || '',
         is_active: member.is_active,
         display_order: member.display_order,
       });
+      setPreviewUrl(member.image_url);
     } else {
       setEditingFaculty(null);
       setFormData({
         name: '',
         designation: '',
         qualification: '',
+        passed_out_college: '',
         email: '',
         phone: '',
         department: '',
+        bio: '',
         is_active: true,
         display_order: faculty.length,
       });
+      setPreviewUrl(null);
     }
+    setSelectedFile(null);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingFaculty(null);
+    setSelectedFile(null);
+    setPreviewUrl(null);
     setFormData({
       name: '',
       designation: '',
       qualification: '',
+      passed_out_college: '',
       email: '',
       phone: '',
       department: '',
+      bio: '',
       is_active: true,
       display_order: 0,
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (editingFaculty) {
-      const { error } = await supabase
-        .from('faculty')
-        .update(formData)
-        .eq('id', editingFaculty.id);
-
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to update faculty', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Faculty updated successfully' });
-        fetchFaculty();
-        closeModal();
-      }
-    } else {
-      const { error } = await supabase.from('faculty').insert([formData]);
-
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to add faculty', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Faculty added successfully' });
-        fetchFaculty();
-        closeModal();
-      }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = `photos/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('faculty')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('faculty')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsUploading(true);
+
+    try {
+      let imageUrl = editingFaculty?.image_url || null;
+
+      // Upload new image if selected
+      if (selectedFile) {
+        const uploadedUrl = await uploadImage(selectedFile);
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        } else {
+          toast({ title: 'Error', description: 'Failed to upload image', variant: 'destructive' });
+          setIsUploading(false);
+          return;
+        }
+      }
+
+      const facultyData = {
+        ...formData,
+        image_url: imageUrl,
+      };
+
+      if (editingFaculty) {
+        const { error } = await supabase
+          .from('faculty')
+          .update(facultyData)
+          .eq('id', editingFaculty.id);
+
+        if (error) {
+          toast({ title: 'Error', description: 'Failed to update faculty', variant: 'destructive' });
+        } else {
+          toast({ title: 'Success', description: 'Faculty updated successfully' });
+          fetchFaculty();
+          closeModal();
+        }
+      } else {
+        const { error } = await supabase.from('faculty').insert([facultyData]);
+
+        if (error) {
+          toast({ title: 'Error', description: 'Failed to add faculty', variant: 'destructive' });
+        } else {
+          toast({ title: 'Success', description: 'Faculty added successfully' });
+          fetchFaculty();
+          closeModal();
+        }
+      }
+    } catch (error) {
+      console.error('Error saving faculty:', error);
+      toast({ title: 'Error', description: 'Something went wrong', variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDelete = async (member: Faculty) => {
     if (!confirm('Are you sure you want to delete this faculty member?')) return;
 
-    const { error } = await supabase.from('faculty').delete().eq('id', id);
+    try {
+      // Delete image from storage if exists
+      if (member.image_url) {
+        const url = new URL(member.image_url);
+        const pathParts = url.pathname.split('/');
+        const filePath = pathParts.slice(pathParts.indexOf('faculty') + 1).join('/');
+        await supabase.storage.from('faculty').remove([filePath]);
+      }
 
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to delete faculty', variant: 'destructive' });
-    } else {
-      toast({ title: 'Success', description: 'Faculty deleted successfully' });
-      fetchFaculty();
+      const { error } = await supabase.from('faculty').delete().eq('id', member.id);
+
+      if (error) {
+        toast({ title: 'Error', description: 'Failed to delete faculty', variant: 'destructive' });
+      } else {
+        toast({ title: 'Success', description: 'Faculty deleted successfully' });
+        fetchFaculty();
+      }
+    } catch (error) {
+      console.error('Error deleting faculty:', error);
+      toast({ title: 'Error', description: 'Something went wrong', variant: 'destructive' });
     }
   };
 
@@ -183,10 +271,12 @@ const AdminFaculty = () => {
           {faculty.map((member) => (
             <div key={member.id} className="glass-card p-5">
               <div className="flex items-start justify-between mb-3">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-lg font-display font-bold text-primary">
-                    {member.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                  </span>
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                  {member.image_url ? (
+                    <img src={member.image_url} alt={member.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-8 h-8 text-primary" />
+                  )}
                 </div>
                 <button
                   onClick={() => toggleActive(member)}
@@ -207,6 +297,9 @@ const AdminFaculty = () => {
               {member.qualification && (
                 <p className="text-xs text-muted-foreground">{member.qualification}</p>
               )}
+              {member.passed_out_college && (
+                <p className="text-xs text-muted-foreground">From: {member.passed_out_college}</p>
+              )}
               <div className="flex gap-2 mt-4">
                 <button
                   onClick={() => openModal(member)}
@@ -215,7 +308,7 @@ const AdminFaculty = () => {
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(member.id)}
+                  onClick={() => handleDelete(member)}
                   className="py-2 px-3 rounded-lg bg-muted hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -236,6 +329,32 @@ const AdminFaculty = () => {
               </h2>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {/* Photo Upload */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Photo</label>
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                    {previewUrl ? (
+                      <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-10 h-10 text-muted-foreground" />
+                    )}
+                  </div>
+                  <label className="cursor-pointer">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
+                      <Upload className="w-4 h-4" />
+                      Upload Photo
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-foreground mb-2">Name *</label>
@@ -272,14 +391,24 @@ const AdminFaculty = () => {
                     ))}
                   </select>
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-foreground mb-2">Qualification</label>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Qualification / Degree</label>
                   <input
                     type="text"
                     value={formData.qualification}
                     onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
                     placeholder="e.g., M.Sc Mathematics"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Passed Out College</label>
+                  <input
+                    type="text"
+                    value={formData.passed_out_college}
+                    onChange={(e) => setFormData({ ...formData, passed_out_college: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                    placeholder="e.g., Tribhuvan University"
                   />
                 </div>
                 <div>
@@ -302,6 +431,16 @@ const AdminFaculty = () => {
                     placeholder="Phone number"
                   />
                 </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">Bio</label>
+                  <textarea
+                    value={formData.bio}
+                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none resize-none"
+                    placeholder="Short bio about the teacher"
+                  />
+                </div>
               </div>
               <div className="flex items-center gap-3">
                 <input
@@ -316,11 +455,11 @@ const AdminFaculty = () => {
                 </label>
               </div>
               <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" onClick={closeModal} className="flex-1">
+                <Button type="button" variant="outline" onClick={closeModal} className="flex-1" disabled={isUploading}>
                   Cancel
                 </Button>
-                <Button type="submit" className="flex-1">
-                  {editingFaculty ? 'Update' : 'Add'}
+                <Button type="submit" className="flex-1" disabled={isUploading}>
+                  {isUploading ? 'Saving...' : editingFaculty ? 'Update' : 'Add'}
                 </Button>
               </div>
             </form>
