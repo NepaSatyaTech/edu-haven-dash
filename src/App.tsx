@@ -17,6 +17,7 @@ import AdminFaculty from "./pages/admin/AdminFaculty";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminAdmissions from "./pages/admin/AdminAdmissions";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminTestimonials from "./pages/admin/AdminTestimonials";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
                 <Route path="events" element={<AdminEvents />} />
                 <Route path="gallery" element={<AdminGallery />} />
                 <Route path="faculty" element={<AdminFaculty />} />
+                <Route path="testimonials" element={<AdminTestimonials />} />
                 <Route path="messages" element={<AdminMessages />} />
                 <Route path="admissions" element={<AdminAdmissions />} />
                 <Route path="settings" element={<AdminSettings />} />

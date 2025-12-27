@@ -14,6 +14,7 @@ import {
   LogOut,
   ChevronRight,
   Settings,
+  Quote,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ const navItems = [
   { name: 'Events', href: '/admin/events', icon: Calendar },
   { name: 'Gallery', href: '/admin/gallery', icon: Image },
   { name: 'Faculty', href: '/admin/faculty', icon: Users },
+  { name: 'Testimonials', href: '/admin/testimonials', icon: Quote },
   { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
   { name: 'Admissions', href: '/admin/admissions', icon: FileText },
 ];

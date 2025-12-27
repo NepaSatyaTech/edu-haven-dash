@@ -1,98 +1,73 @@
-import { Bell, Calendar, Clock, ChevronRight, FileText, Trophy, PartyPopper } from 'lucide-react';
+import { Bell, Calendar, Clock, ChevronRight, FileText, Trophy, PartyPopper, Megaphone } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+
+const categoryIcons: Record<string, any> = {
+  General: Megaphone,
+  Exam: FileText,
+  Holiday: Calendar,
+  Event: PartyPopper,
+  Sports: Trophy,
+  Academic: FileText,
+  Meeting: Clock,
+};
+
+const categoryColors: Record<string, string> = {
+  General: 'bg-gray-500/10 text-gray-600',
+  Exam: 'bg-red-500/10 text-red-600',
+  Holiday: 'bg-blue-500/10 text-blue-600',
+  Event: 'bg-purple-500/10 text-purple-600',
+  Sports: 'bg-amber-500/10 text-amber-600',
+  Academic: 'bg-emerald-500/10 text-emerald-600',
+  Meeting: 'bg-green-500/10 text-green-600',
+};
 
 export const NoticesSection = () => {
   const { t } = useLanguage();
 
-  const notices = [
-    {
-      id: 1,
-      title: t(
-        'Winter Break Holiday Notice',
-        'शीतकालीन बिदा सम्बन्धी सूचना'
-      ),
-      date: t('Dec 20, 2024', '२० डिसेम्बर २०२४'),
-      category: t('Holiday', 'बिदा'),
-      icon: Calendar,
-      color: 'bg-blue-500/10 text-blue-600',
-      isNew: true,
+  // Fetch notices from database
+  const { data: notices = [] } = useQuery({
+    queryKey: ['public-notices'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('notices')
+        .select('*')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      return data;
     },
-    {
-      id: 2,
-      title: t(
-        'Annual Day Celebration – 2024',
-        'वार्षिक उत्सव समारोह – २०२४'
-      ),
-      date: t('Dec 15, 2024', '१५ डिसेम्बर २०२४'),
-      category: t('Event', 'कार्यक्रम'),
-      icon: PartyPopper,
-      color: 'bg-purple-500/10 text-purple-600',
-      isNew: true,
-    },
-    {
-      id: 3,
-      title: t(
-        'Class 10 Board Exam Schedule Released',
-        'कक्षा १० को बोर्ड परीक्षाको तालिका सार्वजनिक'
-      ),
-      date: t('Dec 10, 2024', '१० डिसेम्बर २०२४'),
-      category: t('Exam', 'परीक्षा'),
-      icon: FileText,
-      color: 'bg-red-500/10 text-red-600',
-      isNew: false,
-    },
-    {
-      id: 4,
-      title: t(
-        'Inter-School Sports Competition Results',
-        'अन्तरविद्यालय खेलकुद प्रतियोगिताको नतिजा'
-      ),
-      date: t('Dec 5, 2024', '५ डिसेम्बर २०२४'),
-      category: t('Sports', 'खेलकुद'),
-      icon: Trophy,
-      color: 'bg-amber-500/10 text-amber-600',
-      isNew: false,
-    },
-    {
-      id: 5,
-      title: t(
-        'Parent–Teacher Meeting Schedule',
-        'अभिभावक–शिक्षक बैठकको तालिका'
-      ),
-      date: t('Dec 1, 2024', '१ डिसेम्बर २०२४'),
-      category: t('Meeting', 'बैठक'),
-      icon: Clock,
-      color: 'bg-green-500/10 text-green-600',
-      isNew: false,
-    },
-  ];
+  });
 
-  const events = [
-    {
-      title: t('Science Exhibition', 'विज्ञान प्रदर्शनी'),
-      date: t('Jan 15, 2025', '१५ जनवरी २०२५'),
-      description: t(
-        'Students showcase innovative science projects',
-        'विद्यार्थीहरूले नवीन विज्ञान परियोजना प्रस्तुत गर्नेछन्'
-      ),
+  // Fetch events from database
+  const { data: events = [] } = useQuery({
+    queryKey: ['public-events'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('is_published', true)
+        .gte('event_date', new Date().toISOString().split('T')[0])
+        .order('event_date', { ascending: true })
+        .limit(3);
+      if (error) throw error;
+      return data;
     },
-    {
-      title: t('Republic Day Celebration', 'गणतन्त्र दिवस समारोह'),
-      date: t('Jan 26, 2025', '२६ जनवरी २०२५'),
-      description: t(
-        'Flag hoisting and cultural programs',
-        'झण्डोत्तोलन तथा सांस्कृतिक कार्यक्रम'
-      ),
-    },
-    {
-      title: t('Annual Sports Meet', 'वार्षिक खेलकुद महोत्सव'),
-      date: t('Feb 10–12, 2025', '१०–१२ फेब्रुअरी २०२५'),
-      description: t(
-        'Three-day inter-house sports competition',
-        'तीन दिने अन्तर सदन खेलकुद प्रतियोगिता'
-      ),
-    },
-  ];
+  });
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const isRecent = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays <= 3;
+  };
 
   return (
     <section id="notices" className="section-padding bg-muted/50">
@@ -124,44 +99,55 @@ export const NoticesSection = () => {
                 <h3 className="text-xl font-display font-bold">
                   {t('Latest Notices', 'पछिल्ला सूचनाहरू')}
                 </h3>
-                <a href="#" className="text-sm text-primary font-semibold hover:underline flex items-center gap-1">
-                  {t('View All', 'सबै हेर्नुहोस्')}
-                  <ChevronRight className="w-4 h-4" />
-                </a>
               </div>
 
               <div className="divide-y divide-border">
-                {notices.map((notice) => (
-                  <div key={notice.id} className="p-5 hover:bg-muted/50 transition-colors">
-                    <div className="flex items-start gap-4">
-                      <div className={`w-12 h-12 rounded-xl ${notice.color} flex items-center justify-center`}>
-                        <notice.icon className="w-6 h-6" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between gap-4">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs bg-muted px-2 py-0.5 rounded">
-                                {notice.category}
-                              </span>
-                              {notice.isNew && (
-                                <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded font-bold">
-                                  {t('NEW', 'नयाँ')}
-                                </span>
-                              )}
-                            </div>
-                            <h4 className="font-semibold">
-                              {notice.title}
-                            </h4>
+                {notices.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">
+                    {t('No notices at the moment.', 'हाल कुनै सूचना छैन।')}
+                  </div>
+                ) : (
+                  notices.map((notice) => {
+                    const IconComponent = categoryIcons[notice.category] || Megaphone;
+                    const colorClass = categoryColors[notice.category] || categoryColors.General;
+                    return (
+                      <div key={notice.id} className="p-5 hover:bg-muted/50 transition-colors">
+                        <div className="flex items-start gap-4">
+                          <div className={`w-12 h-12 rounded-xl ${colorClass} flex items-center justify-center`}>
+                            <IconComponent className="w-6 h-6" />
                           </div>
-                          <span className="text-xs text-muted-foreground">
-                            {notice.date}
-                          </span>
+                          <div className="flex-1">
+                            <div className="flex justify-between gap-4">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-xs bg-muted px-2 py-0.5 rounded">
+                                    {notice.category}
+                                  </span>
+                                  {isRecent(notice.created_at) && (
+                                    <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded font-bold">
+                                      {t('NEW', 'नयाँ')}
+                                    </span>
+                                  )}
+                                </div>
+                                <h4 className="font-semibold">
+                                  {notice.title}
+                                </h4>
+                                {notice.content && (
+                                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                    {notice.content}
+                                  </p>
+                                )}
+                              </div>
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                {formatDate(notice.created_at)}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
@@ -175,19 +161,32 @@ export const NoticesSection = () => {
               </h3>
 
               <div className="space-y-4">
-                {events.map((event) => (
-                  <div key={event.title} className="p-4 rounded-xl bg-card border">
-                    <span className="text-sm text-primary font-semibold">
-                      {event.date}
-                    </span>
-                    <h4 className="font-bold mt-1">
-                      {event.title}
-                    </h4>
-                    <p className="text-sm text-muted-foreground">
-                      {event.description}
-                    </p>
-                  </div>
-                ))}
+                {events.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-4">
+                    {t('No upcoming events.', 'कुनै आगामी कार्यक्रम छैन।')}
+                  </p>
+                ) : (
+                  events.map((event) => (
+                    <div key={event.id} className="p-4 rounded-xl bg-card border">
+                      <span className="text-sm text-primary font-semibold">
+                        {formatDate(event.event_date)}
+                      </span>
+                      <h4 className="font-bold mt-1">
+                        {event.title}
+                      </h4>
+                      {event.location && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          📍 {event.location}
+                        </p>
+                      )}
+                      {event.description && (
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                          {event.description}
+                        </p>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
 
               <div className="mt-6 p-4 rounded-xl bg-secondary/10">
