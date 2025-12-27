@@ -1,54 +1,41 @@
 import { Star, Quote } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext'; // Assumes a language context
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 export const TestimonialsSection = () => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const { data: settings } = useSiteSettings();
 
-  const testimonials = [
-    {
-      name: 'Mrs. Sunita Kapoor',
-      role: t('Parent of Grade 8 Student', 'ग्रेड ८ विद्यार्थीको अभिभावक'),
-      content: t(
-        "Lautan Ram Dropadi Devi has transformed my daughter's approach to learning. The teachers are incredibly supportive, and the holistic development focus is remarkable.",
-        "लौटन राम द्रोपदी देवीले मेरी छोरीको सिकाइको दृष्टिकोण परिवर्तन गर्‍यो। शिक्षकहरू अत्यन्तै सहयोगी छन्, र समग्र विकासमा केन्द्रित दृष्टिकोण प्रशंसनीय छ।"
-      ),
-      rating: 5,
-      initials: 'SK',
-      color: 'from-blue-500 to-blue-600',
+  const getSettingValue = (key: string) => {
+    if (!settings?.[key]) return '';
+    return language === 'ne' && settings[key].value_ne 
+      ? settings[key].value_ne 
+      : settings[key].value_en;
+  };
+
+  // Fetch testimonials from database
+  const { data: testimonials = [] } = useQuery({
+    queryKey: ['public-testimonials'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('testimonials')
+        .select('*')
+        .eq('is_published', true)
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      return data;
     },
-    {
-      name: 'Rahul Sharma',
-      role: t('Alumni, Batch of 2020', 'पूर्व विद्यार्थी, २०२० ब्याच'),
-      content: t(
-        "The foundation I received here helped me crack JEE Advanced. The faculty's dedication and the competitive environment prepared me well for success.",
-        "यहाँ पाएको आधारले मलाई JEE Advanced मा सफलता हासिल गर्न मद्दत गर्‍यो। शिक्षकहरूको समर्पण र प्रतिस्पर्धात्मक वातावरणले मलाई सफलताका लागि तयार पारे।"
-      ),
-      rating: 5,
-      initials: 'RS',
-      color: 'from-emerald-500 to-emerald-600',
-    },
-    {
-      name: 'Mr. Amit Patel',
-      role: t('Parent of Grade 5 & Grade 9 Students', 'ग्रेड ५ र ग्रेड ९ विद्यार्थीको अभिभावक'),
-      content: t(
-        'Both my children study here and the difference in their confidence and knowledge is visible. The school truly cares about each student.',
-        'मेरो दुबै बच्चा यहाँ पढ्छन् र उनीहरूको आत्मविश्वास र ज्ञानमा स्पष्ट फरक देखिन्छ। स्कूल साँच्चिकै प्रत्येक विद्यार्थीको ख्याल राख्छ।'
-      ),
-      rating: 5,
-      initials: 'AP',
-      color: 'from-purple-500 to-purple-600',
-    },
-    {
-      name: 'Priya Agarwal',
-      role: t('Alumni, Batch of 2019', 'पूर्व विद्यार्थी, २०१९ ब्याच'),
-      content: t(
-        "The extracurricular activities and sports programs helped me discover my passion. I'm now pursuing professional athletics thanks to the exposure I got here.",
-        "पाठ्येतर गतिविधिहरू र खेलकुद कार्यक्रमहरूले मलाई मेरो रुचि पत्ता लगाउन मद्दत गर्‍यो। यहाँको अनुभवका कारण म अहिले पेशेवर खेलकुदमा लागिरहेको छु।"
-      ),
-      rating: 5,
-      initials: 'PA',
-      color: 'from-orange-500 to-orange-600',
-    },
+  });
+
+  const gradientColors = [
+    'from-blue-500 to-blue-600',
+    'from-emerald-500 to-emerald-600',
+    'from-purple-500 to-purple-600',
+    'from-orange-500 to-orange-600',
+    'from-rose-500 to-rose-600',
+    'from-cyan-500 to-cyan-600',
   ];
 
   const stats = [
@@ -66,9 +53,11 @@ export const TestimonialsSection = () => {
           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
             {t('Testimonials', 'प्रशंसापत्र')}
           </span>
-          <h2 className="section-title">{t('What Our Community Says', 'हाम्रो समुदायले के भन्छ')}</h2>
+          <h2 className="section-title">
+            {getSettingValue('testimonials_title') || t('What Our Community Says', 'हाम्रो समुदायले के भन्छ')}
+          </h2>
           <p className="section-subtitle">
-            {t(
+            {getSettingValue('testimonials_description') || t(
               "Hear from parents, students, and alumni about their experience at Lautan Ram Dropadi Devi.",
               "अभिभावक, विद्यार्थी, र पूर्व विद्यार्थीहरूले लौटन राम द्रोपदी देवीमा आफ्नो अनुभवबारे के भन्छन् सुन्नुहोस्।"
             )}
@@ -77,44 +66,60 @@ export const TestimonialsSection = () => {
 
         {/* Testimonials Grid */}
         <div className="grid md:grid-cols-2 gap-6">
-          {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.name}
-              className="group glass-card p-8 hover:shadow-card-hover transition-all duration-500"
-            >
-              {/* Quote Icon */}
-              <div className="mb-6">
-                <Quote className="w-10 h-10 text-secondary/50" />
-              </div>
-
-              {/* Content */}
-              <p className="text-foreground text-lg leading-relaxed mb-6 italic">
-                "{testimonial.content}"
-              </p>
-
-              {/* Rating */}
-              <div className="flex gap-1 mb-6">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-secondary text-secondary" />
-                ))}
-              </div>
-
-              {/* Author */}
-              <div className="flex items-center gap-4">
-                <div
-                  className={`w-14 h-14 rounded-full bg-gradient-to-br ${testimonial.color} flex items-center justify-center`}
-                >
-                  <span className="text-lg font-display font-bold text-white">
-                    {testimonial.initials}
-                  </span>
-                </div>
-                <div>
-                  <p className="font-display font-bold text-foreground">{testimonial.name}</p>
-                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                </div>
-              </div>
+          {testimonials.length === 0 ? (
+            <div className="col-span-2 text-center py-12 text-muted-foreground">
+              {t('No testimonials yet.', 'अहिलेसम्म कुनै प्रशंसापत्र छैन।')}
             </div>
-          ))}
+          ) : (
+            testimonials.map((testimonial, index) => {
+              const content = language === 'ne' && testimonial.content_ne 
+                ? testimonial.content_ne 
+                : testimonial.content_en;
+              const role = language === 'ne' && testimonial.role_ne 
+                ? testimonial.role_ne 
+                : testimonial.role_en;
+              const gradientColor = gradientColors[index % gradientColors.length];
+
+              return (
+                <div
+                  key={testimonial.id}
+                  className="group glass-card p-8 hover:shadow-card-hover transition-all duration-500"
+                >
+                  {/* Quote Icon */}
+                  <div className="mb-6">
+                    <Quote className="w-10 h-10 text-secondary/50" />
+                  </div>
+
+                  {/* Content */}
+                  <p className="text-foreground text-lg leading-relaxed mb-6 italic">
+                    "{content}"
+                  </p>
+
+                  {/* Rating */}
+                  <div className="flex gap-1 mb-6">
+                    {[...Array(testimonial.rating || 5)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 fill-secondary text-secondary" />
+                    ))}
+                  </div>
+
+                  {/* Author */}
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-14 h-14 rounded-full bg-gradient-to-br ${gradientColor} flex items-center justify-center`}
+                    >
+                      <span className="text-lg font-display font-bold text-white">
+                        {testimonial.initials || testimonial.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-display font-bold text-foreground">{testimonial.name}</p>
+                      <p className="text-sm text-muted-foreground">{role}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
         {/* Stats */}
