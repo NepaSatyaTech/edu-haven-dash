@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Globe } from 'lucide-react';
+import { Menu, X, Globe, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-
+import { getTodayBS } from '@/lib/nepaliDate';
 const navLinks = [
   { name: 'Home', nameNe: 'गृहपृष्ठ', href: '#home' },
   { name: 'About', nameNe: 'हाम्रो बारेमा', href: '#about' },
@@ -41,14 +41,29 @@ export const Navbar = () => {
   };
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? 'bg-card/95 backdrop-blur-lg shadow-lg border-b border-border/50'
-          : 'bg-transparent'
-      }`}
-    >
-      <div className="container-custom mx-auto px-4">
+    <>
+      {/* Top Bar with Nepali Date */}
+      <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled ? 'h-0 opacity-0 overflow-hidden' : 'h-8 opacity-100'
+      }`}>
+        <div className="h-full bg-secondary/90 backdrop-blur-sm">
+          <div className="container-custom mx-auto px-4 h-full flex items-center justify-center">
+            <div className="flex items-center gap-2 text-secondary-foreground text-sm font-medium">
+              <Calendar className="h-3.5 w-3.5" />
+              <span>{getTodayBS(language)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav
+        className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled
+            ? 'top-0 bg-card/95 backdrop-blur-lg shadow-lg border-b border-border/50'
+            : 'top-8 bg-transparent'
+        }`}
+      >
+        <div className="container-custom mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <a
@@ -172,5 +187,6 @@ export const Navbar = () => {
         </div>
       </div>
     </nav>
+    </>
   );
 };
