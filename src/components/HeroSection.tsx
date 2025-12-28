@@ -36,6 +36,35 @@ export const HeroSection = () => {
       <div className="relative z-10 container-custom mx-auto px-4 pt-20">
         <div className="max-w-5xl mx-auto text-center">
 
+          {/* Nepal Flag */}
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <svg 
+                viewBox="0 0 16 20" 
+                className="w-12 h-16 md:w-16 md:h-20 drop-shadow-lg"
+                aria-label="Flag of Nepal"
+              >
+                {/* Nepal Flag Shape */}
+                <defs>
+                  <clipPath id="nepalFlag">
+                    <path d="M0,0 L16,8 L8,8 L16,16 L0,20 Z" />
+                  </clipPath>
+                </defs>
+                <g clipPath="url(#nepalFlag)">
+                  {/* Blue border */}
+                  <path d="M0,0 L16,8 L8,8 L16,16 L0,20 Z" fill="#003893" />
+                  {/* Red background */}
+                  <path d="M1,1.5 L14,8 L7.5,8 L14.5,14.5 L1,18 Z" fill="#DC143C" />
+                  {/* Moon symbol (top) */}
+                  <circle cx="5" cy="5.5" r="2" fill="white" />
+                  <circle cx="5.5" cy="5" r="1.5" fill="#DC143C" />
+                  {/* Sun symbol (bottom) */}
+                  <circle cx="5" cy="12" r="2.2" fill="white" />
+                </g>
+              </svg>
+            </div>
+          </div>
+
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 text-primary-foreground/90 text-sm font-medium mb-8">
             <Award className="h-4 w-4 text-secondary" />
