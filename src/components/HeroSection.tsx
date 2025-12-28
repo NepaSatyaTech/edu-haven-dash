@@ -46,7 +46,7 @@ export const HeroSection = () => {
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold text-primary-foreground mb-4 leading-tight">
             {t(
               'Shree Lautan Ram Dropadi Devi Secondary School',
-              'श्री लोटन राम द्रौपदी देवी माध्यमिक विद्यालय'
+              'श्री लौटन राम द्रौपदी देवी माध्यमिक विद्यालय'
             )}
             <br />
             <span className="text-gradient">{t('Bijaynagar–7, Ganeshpur', 'विजयनगर–७, गणेशपुर')}</span>
@@ -56,7 +56,7 @@ export const HeroSection = () => {
           <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mx-auto mb-10 leading-relaxed">
             {t(
               "Welcome to Lautan Ram Dropadi Devi Secondary School. Tradition meets innovation here. We provide world-class education, holistic development, and life-value-based learning for a bright future.",
-              "लोटन राम द्रौपदी देवी माध्यमिक विद्यालयमा स्वागत छ। यहाँ परम्परा र नवीनता सँगै अघि बढ्छन्। हामी विश्वस्तरीय शिक्षा, समग्र विकास र जीवनमूल्यमा आधारित शिक्षाद्वारा विद्यार्थीहरूको उज्ज्वल भविष्य निर्माण गर्छौं।"
+              "श्री लौटन राम द्रौपदी देवी माध्यमिक विद्यालयमा स्वागत छ। यहाँ परम्परा र नवीनता सँगै अघि बढ्छन्। हामी विश्वस्तरीय शिक्षा, समग्र विकास र जीवनमूल्यमा आधारित शिक्षाद्वारा विद्यार्थीहरूको उज्ज्वल भविष्य निर्माण गर्छौं।"
             )}
           </p>
 

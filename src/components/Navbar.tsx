@@ -63,7 +63,7 @@ export const Navbar = () => {
               <span className={`text-xl font-display font-bold tracking-tight transition-colors ${
                 scrolled ? 'text-foreground' : 'text-primary-foreground'
               }`}>
-                {t('Lautan Ram Dropadi Devi', 'लोटन राम द्रौपदी देवी')}
+                {t('Lautan Ram Dropadi Devi', 'लौटन राम द्रौपदी देवी')}
               </span>
               <span className={`text-xs font-body tracking-wider transition-colors ${
                 scrolled ? 'text-muted-foreground' : 'text-primary-foreground/70'
