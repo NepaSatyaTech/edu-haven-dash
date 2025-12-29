@@ -37,12 +37,12 @@ export const ContactSection = () => {
     {
       icon: Phone,
       title: t('Phone', 'फोन'),
-      lines: ['977 9817425483', '+977 9878945612'],
+      lines: ['+977 9817425483', '+977 984-7424894'],
     },
     {
       icon: Mail,
       title: t('Email', 'इमेल'),
-      lines: ['info@lautandropadidevi.edu', 'admissions@lautandropadidevi.edu'],
+      lines: ['lautanramdropadidevischool@gmail.com', 'admissions@lautandropadidevi.edu'],
     },
     {
       icon: Clock,
