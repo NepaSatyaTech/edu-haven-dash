@@ -95,15 +95,36 @@ export const ContactSection = () => {
             </div>
 
             {/* Map Placeholder */}
-            <div className="glass-card p-2 h-64 overflow-hidden">
-              <div className="w-full h-full rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-12 h-12 text-primary mx-auto mb-2" />
-                  <p className="text-muted-foreground">{t('Interactive Map', 'इन्टरएक्टिभ नक्शा')}</p>
-                  <p className="text-sm text-muted-foreground">{t('123 Education Lane, Bijaynagar', '१२३ एजुकेसन लेन, विजयनगर')}</p>
-                </div>
-              </div>
-            </div>
+            {/* Map Section */}
+<div className="glass-card p-2 h-64 overflow-hidden">
+  <div className="w-full h-full rounded-lg overflow-hidden relative">
+    
+    {/* Map Image */}
+    <img
+      src="/map.png"
+      alt="School Location Map"
+      className="w-full h-full object-cover"
+    />
+
+    {/* Overlay Content */}
+    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+      <div className="text-center text-white">
+        {/* <MapPin className="w-10 h-10 mx-auto mb-2 text-white" /> */}
+        <p className="font-semibold">
+          {t('School Location', 'विद्यालयको स्थान')}
+        </p>
+        <p className="text-sm opacity-90">
+          {t(
+            'Shree Lautanram Dropatidevi Secondary School, Bijaynagar',
+            'श्री लौटन राम द्रौपदी देवी माध्यमिक विद्यालय, विजयनगर'
+          )}
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 
             {/* Social Links */}
             <div className="flex items-center gap-4">
