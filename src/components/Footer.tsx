@@ -1,16 +1,17 @@
 import { GraduationCap, Heart, ArrowUp } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Link } from 'react-router-dom';
 
 export const Footer = () => {
   const { t } = useLanguage();
 
   const quickLinks = [
-    { name: t('About Us', 'हाम्रो बारेमा'), href: '#about' },
-    { name: t('Academics', 'शैक्षिक कार्यक्रम'), href: '#academics' },
-    { name: t('Admissions', 'भर्ना'), href: '#admissions' },
-    { name: t('Facilities', 'सुविधाहरू'), href: '#facilities' },
-    { name: t('Gallery', 'ग्यालेरी'), href: '#gallery' },
-    { name: t('Contact', 'सम्पर्क'), href: '#contact' },
+    { name: t('About Us', 'हाम्रो बारेमा'), href: '/#about' },
+    { name: t('Academics', 'शैक्षिक कार्यक्रम'), href: '/academics', isPage: true },
+    { name: t('Admissions', 'भर्ना'), href: '/#admissions' },
+    { name: t('Facilities', 'सुविधाहरू'), href: '/#facilities' },
+    { name: t('Gallery', 'ग्यालेरी'), href: '/gallery', isPage: true },
+    { name: t('Contact', 'सम्पर्क'), href: '/contact', isPage: true },
   ];
 
   const resources = [
@@ -33,7 +34,7 @@ export const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* School Info */}
           <div>
-            <a href="#home" className="flex items-center gap-3 mb-6">
+            <Link to="/" className="flex items-center gap-3 mb-6">
               <div className="p-2 rounded-xl bg-primary-foreground/10">
                 <GraduationCap className="h-8 w-8 text-secondary" />
               </div>
@@ -45,7 +46,7 @@ export const Footer = () => {
                   {t('Excellence in Education', 'शिक्षामा उत्कृष्टता')}
                 </p>
               </div>
-            </a>
+            </Link>
 
             <p className="text-primary-foreground/80 text-sm leading-relaxed mb-6">
               {t(
@@ -67,12 +68,21 @@ export const Footer = () => {
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm"
-                  >
-                    {link.name}
-                  </a>
+                  {link.isPage ? (
+                    <Link
+                      to={link.href}
+                      className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm"
+                    >
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm"
+                    >
+                      {link.name}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

@@ -2,23 +2,32 @@ import { useState, useEffect } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Link, useLocation } from 'react-router-dom';
 
-const navLinks = [
-  { name: 'Home', nameNe: 'गृहपृष्ठ', href: '#home' },
+interface NavLink {
+  name: string;
+  nameNe: string;
+  href: string;
+  isPage?: boolean;
+}
+
+const navLinks: NavLink[] = [
+  { name: 'Home', nameNe: 'गृहपृष्ठ', href: '/' },
   { name: 'About', nameNe: 'हाम्रो बारेमा', href: '#about' },
-  { name: 'Academics', nameNe: 'शैक्षिक', href: '#academics' },
+  { name: 'Academics', nameNe: 'शैक्षिक', href: '/academics', isPage: true },
   { name: 'Admissions', nameNe: 'भर्ना', href: '#admissions' },
-  { name: 'Faculty', nameNe: 'शिक्षक', href: '#faculty' },
+  { name: 'Faculty', nameNe: 'शिक्षक', href: '/faculty', isPage: true },
   { name: 'Facilities', nameNe: 'सुविधाहरू', href: '#facilities' },
-  { name: 'Gallery', nameNe: 'ग्यालरी', href: '#gallery' },
+  { name: 'Gallery', nameNe: 'ग्यालरी', href: '/gallery', isPage: true },
   { name: 'Notices', nameNe: 'सूचनाहरू', href: '#notices' },
-  { name: 'Contact', nameNe: 'सम्पर्क', href: '#contact' },
+  { name: 'Contact', nameNe: 'सम्पर्क', href: '/contact', isPage: true },
 ];
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,9 +38,17 @@ export const Navbar = () => {
   }, []);
 
   const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    if (href.startsWith('#')) {
+      // If we're on the home page, scroll to section
+      if (location.pathname === '/') {
+        const element = document.querySelector(href);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        // Navigate to home page with hash
+        window.location.href = '/' + href;
+      }
     }
     setIsOpen(false);
   };
@@ -51,12 +68,8 @@ export const Navbar = () => {
       <div className="container-custom mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <a
-            href="#home"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection('#home');
-            }}
+          <Link
+            to="/"
             className="flex items-center group"
           >
             <div className="flex flex-col">
@@ -71,26 +84,42 @@ export const Navbar = () => {
                 {t('Excellence in Education', 'शिक्षामा उत्कृष्टता')}
               </span>
             </div>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToSection(link.href);
-                }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-primary/10 ${
-                  scrolled
-                    ? 'text-foreground hover:text-primary'
-                    : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10'
-                }`}
-              >
-                {language === 'ne' ? link.nameNe : link.name}
-              </a>
+              link.isPage ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-primary/10 ${
+                    scrolled
+                      ? 'text-foreground hover:text-primary'
+                      : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10'
+                  }`}
+                >
+                  {language === 'ne' ? link.nameNe : link.name}
+                </Link>
+              ) : (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={(e) => {
+                    if (link.href.startsWith('#')) {
+                      e.preventDefault();
+                      scrollToSection(link.href);
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-primary/10 ${
+                    scrolled
+                      ? 'text-foreground hover:text-primary'
+                      : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10'
+                  }`}
+                >
+                  {language === 'ne' ? link.nameNe : link.name}
+                </a>
+              )
             ))}
             
             {/* Language Toggle */}
@@ -139,17 +168,30 @@ export const Navbar = () => {
         >
           <div className="py-4 space-y-1 bg-card/95 backdrop-blur-lg rounded-2xl mb-4 px-2">
             {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToSection(link.href);
-                }}
-                className="block px-4 py-3 rounded-xl text-foreground font-medium transition-colors hover:bg-primary/10 hover:text-primary"
-              >
-                {language === 'ne' ? link.nameNe : link.name}
-              </a>
+              link.isPage ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  onClick={() => setIsOpen(false)}
+                  className="block px-4 py-3 rounded-xl text-foreground font-medium transition-colors hover:bg-primary/10 hover:text-primary"
+                >
+                  {language === 'ne' ? link.nameNe : link.name}
+                </Link>
+              ) : (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={(e) => {
+                    if (link.href.startsWith('#')) {
+                      e.preventDefault();
+                      scrollToSection(link.href);
+                    }
+                  }}
+                  className="block px-4 py-3 rounded-xl text-foreground font-medium transition-colors hover:bg-primary/10 hover:text-primary"
+                >
+                  {language === 'ne' ? link.nameNe : link.name}
+                </a>
+              )
             ))}
             
             {/* Mobile Language Toggle */}
