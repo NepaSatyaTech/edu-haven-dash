@@ -8,19 +8,18 @@ interface NavLink {
   name: string;
   nameNe: string;
   href: string;
-  isPage?: boolean;
 }
 
 const navLinks: NavLink[] = [
   { name: 'Home', nameNe: 'गृहपृष्ठ', href: '/' },
   { name: 'About', nameNe: 'हाम्रो बारेमा', href: '#about' },
-  { name: 'Academics', nameNe: 'शैक्षिक', href: '/academics', isPage: true },
+  { name: 'Academics', nameNe: 'शैक्षिक', href: '#academics' },
   { name: 'Admissions', nameNe: 'भर्ना', href: '#admissions' },
-  { name: 'Faculty', nameNe: 'शिक्षक', href: '/faculty', isPage: true },
+  { name: 'Faculty', nameNe: 'शिक्षक', href: '#faculty' },
   { name: 'Facilities', nameNe: 'सुविधाहरू', href: '#facilities' },
-  { name: 'Gallery', nameNe: 'ग्यालरी', href: '/gallery', isPage: true },
+  { name: 'Gallery', nameNe: 'ग्यालरी', href: '#gallery' },
   { name: 'Notices', nameNe: 'सूचनाहरू', href: '#notices' },
-  { name: 'Contact', nameNe: 'सम्पर्क', href: '/contact', isPage: true },
+  { name: 'Contact', nameNe: 'सम्पर्क', href: '#contact' },
 ];
 
 export const Navbar = () => {
@@ -86,40 +85,25 @@ export const Navbar = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
-              link.isPage ? (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-primary/10 ${
-                    scrolled
-                      ? 'text-foreground hover:text-primary'
-                      : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10'
-                  }`}
-                >
-                  {language === 'ne' ? link.nameNe : link.name}
-                </Link>
-              ) : (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={(e) => {
-                    if (link.href.startsWith('#')) {
-                      e.preventDefault();
-                      scrollToSection(link.href);
-                    }
-                  }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-primary/10 ${
-                    scrolled
-                      ? 'text-foreground hover:text-primary'
-                      : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10'
-                  }`}
-                >
-                  {language === 'ne' ? link.nameNe : link.name}
-                </a>
-              )
+              <a
+                key={link.name}
+                href={link.href}
+                onClick={(e) => {
+                  if (link.href.startsWith('#')) {
+                    e.preventDefault();
+                    scrollToSection(link.href);
+                  }
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-primary/10 ${
+                  scrolled
+                    ? 'text-foreground hover:text-primary'
+                    : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10'
+                }`}
+              >
+                {language === 'ne' ? link.nameNe : link.name}
+              </a>
             ))}
             
             {/* Language Toggle */}
@@ -168,30 +152,19 @@ export const Navbar = () => {
         >
           <div className="py-4 space-y-1 bg-card/95 backdrop-blur-lg rounded-2xl mb-4 px-2">
             {navLinks.map((link) => (
-              link.isPage ? (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="block px-4 py-3 rounded-xl text-foreground font-medium transition-colors hover:bg-primary/10 hover:text-primary"
-                >
-                  {language === 'ne' ? link.nameNe : link.name}
-                </Link>
-              ) : (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={(e) => {
-                    if (link.href.startsWith('#')) {
-                      e.preventDefault();
-                      scrollToSection(link.href);
-                    }
-                  }}
-                  className="block px-4 py-3 rounded-xl text-foreground font-medium transition-colors hover:bg-primary/10 hover:text-primary"
-                >
-                  {language === 'ne' ? link.nameNe : link.name}
-                </a>
-              )
+              <a
+                key={link.name}
+                href={link.href}
+                onClick={(e) => {
+                  if (link.href.startsWith('#')) {
+                    e.preventDefault();
+                    scrollToSection(link.href);
+                  }
+                }}
+                className="block px-4 py-3 rounded-xl text-foreground font-medium transition-colors hover:bg-primary/10 hover:text-primary"
+              >
+                {language === 'ne' ? link.nameNe : link.name}
+              </a>
             ))}
             
             {/* Mobile Language Toggle */}
