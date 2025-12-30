@@ -6,12 +6,12 @@ export const Footer = () => {
   const { t } = useLanguage();
 
   const quickLinks = [
-    { name: t('About Us', 'हाम्रो बारेमा'), href: '/#about' },
-    { name: t('Academics', 'शैक्षिक कार्यक्रम'), href: '/academics', isPage: true },
-    { name: t('Admissions', 'भर्ना'), href: '/#admissions' },
-    { name: t('Facilities', 'सुविधाहरू'), href: '/#facilities' },
-    { name: t('Gallery', 'ग्यालेरी'), href: '/gallery', isPage: true },
-    { name: t('Contact', 'सम्पर्क'), href: '/contact', isPage: true },
+    { name: t('About Us', 'हाम्रो बारेमा'), href: '#about' },
+    { name: t('Academics', 'शैक्षिक कार्यक्रम'), href: '#academics' },
+    { name: t('Admissions', 'भर्ना'), href: '#admissions' },
+    { name: t('Facilities', 'सुविधाहरू'), href: '#facilities' },
+    { name: t('Gallery', 'ग्यालेरी'), href: '#gallery' },
+    { name: t('Contact', 'सम्पर्क'), href: '#contact' },
   ];
 
   const resources = [
@@ -68,21 +68,12 @@ export const Footer = () => {
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  {link.isPage ? (
-                    <Link
-                      to={link.href}
-                      className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm"
-                    >
-                      {link.name}
-                    </Link>
-                  ) : (
-                    <a
-                      href={link.href}
-                      className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm"
-                    >
-                      {link.name}
-                    </a>
-                  )}
+                  <a
+                    href={link.href}
+                    className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm"
+                  >
+                    {link.name}
+                  </a>
                 </li>
               ))}
             </ul>
