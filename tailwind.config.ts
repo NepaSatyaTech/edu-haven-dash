@@ -80,6 +80,10 @@ export default {
           "0%": { transform: "translateX(-100%)" },
           "100%": { transform: "translateX(100%)" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
@@ -95,6 +99,7 @@ export default {
         shimmer: "shimmer 2s infinite",
         float: "float 3s ease-in-out infinite",
         pulse: "pulse 2s ease-in-out infinite",
+        marquee: "marquee 30s linear infinite",
       },
       boxShadow: {
         'card': '0 4px 20px -4px hsl(220 30% 15% / 0.08)',

@@ -1,5 +1,6 @@
 import { Navbar } from '@/components/Navbar';
 import { HeroSection } from '@/components/HeroSection';
+import { NoticeMarquee } from '@/components/NoticeMarquee';
 import { AboutSection } from '@/components/AboutSection';
 import { AcademicsSection } from '@/components/AcademicsSection';
 import { FacilitiesSection } from '@/components/FacilitiesSection';
@@ -17,6 +18,7 @@ const Index = () => {
       {/* SEO Meta Tags handled by index.html */}
       <Navbar />
       <HeroSection />
+      <NoticeMarquee />
       <AboutSection />
       <AcademicsSection />
       <FacilitiesSection />
