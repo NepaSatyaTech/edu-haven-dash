@@ -66,9 +66,9 @@ export const NoticeMarquee = () => {
               {language === 'ne' ? 'सूचना' : 'Notices'}
             </span>
           </div>
-          <div className="overflow-hidden flex-1">
+          <div className="overflow-hidden flex-1 relative">
             <div 
-              className="whitespace-nowrap animate-marquee"
+              className="inline-block whitespace-nowrap animate-marquee"
               style={{ animationPlayState: isPaused ? 'paused' : 'running' }}
             >
               {notices.map((notice, index) => (
@@ -79,19 +79,7 @@ export const NoticeMarquee = () => {
                   >
                     {notice.title}
                   </button>
-                  {index < notices.length - 1 && <span className="mx-4">•</span>}
-                </span>
-              ))}
-              <span className="mx-4">•</span>
-              {notices.map((notice, index) => (
-                <span key={`dup-${notice.id}`}>
-                  <button
-                    onClick={() => setSelectedNotice(notice)}
-                    className="text-sm font-medium hover:underline cursor-pointer transition-all hover:text-white/80"
-                  >
-                    {notice.title}
-                  </button>
-                  {index < notices.length - 1 && <span className="mx-4">•</span>}
+                  {index < notices.length - 1 && <span className="mx-6">•</span>}
                 </span>
               ))}
             </div>
