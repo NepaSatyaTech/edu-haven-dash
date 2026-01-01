@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface Notice {
   id: string;
@@ -49,16 +50,18 @@ export const NoticeMarquee = () => {
     });
   };
 
+  const handleClose = () => setSelectedNotice(null);
+
   return (
     <>
       <div 
-        className="bg-primary text-primary-foreground py-2 overflow-hidden"
+        className="bg-marquee-gradient text-white py-2.5 overflow-hidden shadow-md"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
         <div className="container mx-auto flex items-center gap-4">
-          <div className="flex items-center gap-2 shrink-0 px-4 border-r border-primary-foreground/30">
-            <Bell className="h-4 w-4" />
+          <div className="flex items-center gap-2 shrink-0 px-4 border-r border-white/30">
+            <Bell className="h-4 w-4 animate-pulse" />
             <span className="font-semibold text-sm">
               {language === 'ne' ? 'सूचना' : 'Notices'}
             </span>
@@ -72,7 +75,7 @@ export const NoticeMarquee = () => {
                 <span key={notice.id}>
                   <button
                     onClick={() => setSelectedNotice(notice)}
-                    className="text-sm hover:underline cursor-pointer transition-all hover:text-primary-foreground/80"
+                    className="text-sm font-medium hover:underline cursor-pointer transition-all hover:text-white/80"
                   >
                     {notice.title}
                   </button>
@@ -84,7 +87,7 @@ export const NoticeMarquee = () => {
                 <span key={`dup-${notice.id}`}>
                   <button
                     onClick={() => setSelectedNotice(notice)}
-                    className="text-sm hover:underline cursor-pointer transition-all hover:text-primary-foreground/80"
+                    className="text-sm font-medium hover:underline cursor-pointer transition-all hover:text-white/80"
                   >
                     {notice.title}
                   </button>
@@ -96,16 +99,27 @@ export const NoticeMarquee = () => {
         </div>
       </div>
 
-      <Dialog open={!!selectedNotice} onOpenChange={() => setSelectedNotice(null)}>
+      <Dialog open={!!selectedNotice} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
+          <DialogHeader className="relative pr-8">
             <DialogTitle className="text-xl font-display">
               {selectedNotice?.title}
             </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClose}
+              className="absolute -top-2 -right-2 h-8 w-8 rounded-full hover:bg-muted"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <Badge variant="secondary">{selectedNotice?.category}</Badge>
+              <Badge className="bg-marquee-gradient text-white border-0">
+                {selectedNotice?.category}
+              </Badge>
               <span className="text-sm text-muted-foreground">
                 {selectedNotice && formatDate(selectedNotice.created_at)}
               </span>
