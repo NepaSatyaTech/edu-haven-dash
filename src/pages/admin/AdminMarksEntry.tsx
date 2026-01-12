@@ -1,0 +1,312 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useStudents, useClassSubjects, useMarks, useSaveMarks, useExams, ClassSubject, Mark } from '@/hooks/useStudentManagement';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+
+interface MarkEntry {
+  student_id: string;
+  exam_id: string;
+  subject_id: string;
+  marks_obtained: number | null;
+  remarks?: string;
+}
+
+const AdminMarksEntry = () => {
+  const { examId } = useParams<{ examId: string }>();
+  const navigate = useNavigate();
+  const [selectedSection, setSelectedSection] = useState<string>('');
+  const [marksData, setMarksData] = useState<Record<string, Record<string, number | null>>>({});
+  const [sections, setSections] = useState<Array<{ id: string; name: string }>>([]);
+
+  const { data: exams = [] } = useExams();
+  const exam = exams.find(e => e.id === examId);
+  
+  const { data: classSubjects = [] } = useClassSubjects(exam?.class_id);
+  const { data: students = [], isLoading: studentsLoading } = useStudents(
+    exam?.class_id,
+    selectedSection || undefined
+  );
+  const { data: existingMarks = [] } = useMarks(examId);
+  const saveMarks = useSaveMarks();
+
+  // Load sections for the class
+  useEffect(() => {
+    const loadSections = async () => {
+      if (!exam?.class_id) return;
+      const { data } = await supabase
+        .from('sections')
+        .select('*')
+        .eq('class_id', exam.class_id)
+        .order('name');
+      if (data) setSections(data);
+    };
+    loadSections();
+  }, [exam?.class_id]);
+
+  // Initialize marks data from existing marks
+  useEffect(() => {
+    const initialMarks: Record<string, Record<string, number | null>> = {};
+    existingMarks.forEach((mark) => {
+      if (!initialMarks[mark.student_id]) {
+        initialMarks[mark.student_id] = {};
+      }
+      initialMarks[mark.student_id][mark.subject_id] = mark.marks_obtained;
+    });
+    setMarksData(initialMarks);
+  }, [existingMarks]);
+
+  const handleMarkChange = (studentId: string, subjectId: string, value: string) => {
+    const numValue = value === '' ? null : parseFloat(value);
+    const subject = classSubjects.find(cs => cs.subject_id === subjectId)?.subjects;
+    
+    if (numValue !== null && subject) {
+      if (numValue < 0 || numValue > subject.full_marks) {
+        toast.error(`Marks must be between 0 and ${subject.full_marks}`);
+        return;
+      }
+    }
+
+    setMarksData(prev => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        [subjectId]: numValue,
+      },
+    }));
+  };
+
+  const handleSaveMarks = async () => {
+    if (!examId) return;
+
+    const marksToSave: MarkEntry[] = [];
+    
+    Object.entries(marksData).forEach(([studentId, subjects]) => {
+      Object.entries(subjects).forEach(([subjectId, marksObtained]) => {
+        marksToSave.push({
+          student_id: studentId,
+          exam_id: examId,
+          subject_id: subjectId,
+          marks_obtained: marksObtained,
+        });
+      });
+    });
+
+    if (marksToSave.length === 0) {
+      toast.error('No marks to save');
+      return;
+    }
+
+    await saveMarks.mutateAsync(marksToSave);
+  };
+
+  const getGrade = (marks: number | null, fullMarks: number): string => {
+    if (marks === null) return '-';
+    const percentage = (marks / fullMarks) * 100;
+    if (percentage >= 90) return 'A+';
+    if (percentage >= 80) return 'A';
+    if (percentage >= 70) return 'B+';
+    if (percentage >= 60) return 'B';
+    if (percentage >= 50) return 'C+';
+    if (percentage >= 40) return 'C';
+    if (percentage >= 32) return 'D+';
+    if (percentage >= 20) return 'D';
+    return 'E';
+  };
+
+  const getGradeColor = (grade: string): string => {
+    const colors: Record<string, string> = {
+      'A+': 'text-green-600',
+      'A': 'text-green-500',
+      'B+': 'text-blue-600',
+      'B': 'text-blue-500',
+      'C+': 'text-yellow-600',
+      'C': 'text-yellow-500',
+      'D+': 'text-orange-600',
+      'D': 'text-orange-500',
+      'E': 'text-red-600',
+    };
+    return colors[grade] || '';
+  };
+
+  if (!exam) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <p className="text-muted-foreground">Exam not found</p>
+        <Button variant="outline" onClick={() => navigate('/admin/exams')} className="mt-4">
+          Back to Exams
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => navigate('/admin/exams')}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold">{exam.name}</h1>
+          <p className="text-muted-foreground">
+            {exam.classes?.name} • {exam.academic_years?.name}
+          </p>
+        </div>
+        <Button onClick={handleSaveMarks} disabled={saveMarks.isPending}>
+          {saveMarks.isPending ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4 mr-2" />
+          )}
+          Save Marks
+        </Button>
+      </div>
+
+      {/* Section Filter */}
+      <div className="flex gap-4">
+        <Select value={selectedSection || 'all'} onValueChange={(v) => setSelectedSection(v === 'all' ? '' : v)}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select Section" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sections</SelectItem>
+            {sections.map((section) => (
+              <SelectItem key={section.id} value={section.id}>
+                Section {section.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Badge variant="outline" className="h-10 px-4 flex items-center">
+          {students.length} Students
+        </Badge>
+      </div>
+
+      {/* Marks Entry Table */}
+      <div className="border rounded-lg overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="sticky left-0 bg-background">Roll</TableHead>
+              <TableHead className="sticky left-12 bg-background min-w-[150px]">Student Name</TableHead>
+              {classSubjects.map((cs) => (
+                <TableHead key={cs.subject_id} className="text-center min-w-[100px]">
+                  <div>{cs.subjects.name}</div>
+                  <div className="text-xs font-normal text-muted-foreground">
+                    ({cs.subjects.full_marks})
+                  </div>
+                </TableHead>
+              ))}
+              <TableHead className="text-center">Total</TableHead>
+              <TableHead className="text-center">%</TableHead>
+              <TableHead className="text-center">GPA</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {studentsLoading ? (
+              <TableRow>
+                <TableCell colSpan={classSubjects.length + 5} className="text-center py-8">
+                  Loading students...
+                </TableCell>
+              </TableRow>
+            ) : students.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={classSubjects.length + 5} className="text-center py-8 text-muted-foreground">
+                  No students found in this class
+                </TableCell>
+              </TableRow>
+            ) : (
+              students.map((student) => {
+                const studentMarks = marksData[student.id] || {};
+                let totalMarks = 0;
+                let totalFullMarks = 0;
+                let hasAllMarks = true;
+
+                classSubjects.forEach((cs) => {
+                  const mark = studentMarks[cs.subject_id];
+                  if (mark !== null && mark !== undefined) {
+                    totalMarks += mark;
+                  } else {
+                    hasAllMarks = false;
+                  }
+                  totalFullMarks += cs.subjects.full_marks;
+                });
+
+                const percentage = hasAllMarks && totalFullMarks > 0 
+                  ? ((totalMarks / totalFullMarks) * 100).toFixed(2) 
+                  : '-';
+                const gpa = hasAllMarks ? getGrade(totalMarks, totalFullMarks) : '-';
+
+                return (
+                  <TableRow key={student.id}>
+                    <TableCell className="sticky left-0 bg-background font-medium">
+                      {student.roll_number}
+                    </TableCell>
+                    <TableCell className="sticky left-12 bg-background">
+                      {student.full_name}
+                    </TableCell>
+                    {classSubjects.map((cs) => {
+                      const mark = studentMarks[cs.subject_id];
+                      const grade = getGrade(mark, cs.subjects.full_marks);
+                      return (
+                        <TableCell key={cs.subject_id} className="text-center p-1">
+                          <div className="flex flex-col items-center gap-1">
+                            <Input
+                              type="number"
+                              min="0"
+                              max={cs.subjects.full_marks}
+                              value={mark ?? ''}
+                              onChange={(e) => handleMarkChange(student.id, cs.subject_id, e.target.value)}
+                              className="w-20 text-center h-8"
+                              placeholder="-"
+                            />
+                            <span className={`text-xs font-medium ${getGradeColor(grade)}`}>
+                              {grade}
+                            </span>
+                          </div>
+                        </TableCell>
+                      );
+                    })}
+                    <TableCell className="text-center font-medium">
+                      {hasAllMarks ? totalMarks : '-'}
+                    </TableCell>
+                    <TableCell className="text-center font-medium">
+                      {percentage}%
+                    </TableCell>
+                    <TableCell className={`text-center font-bold ${getGradeColor(gpa)}`}>
+                      {gpa}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Legend */}
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h3 className="font-medium mb-2">Grade Scale</h3>
+        <div className="flex flex-wrap gap-4 text-sm">
+          <span className="text-green-600">A+ (90-100%)</span>
+          <span className="text-green-500">A (80-89%)</span>
+          <span className="text-blue-600">B+ (70-79%)</span>
+          <span className="text-blue-500">B (60-69%)</span>
+          <span className="text-yellow-600">C+ (50-59%)</span>
+          <span className="text-yellow-500">C (40-49%)</span>
+          <span className="text-orange-600">D+ (32-39%)</span>
+          <span className="text-orange-500">D (20-31%)</span>
+          <span className="text-red-600">E (Below 20%)</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminMarksEntry;
