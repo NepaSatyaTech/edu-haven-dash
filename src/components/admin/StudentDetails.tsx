@@ -23,9 +23,17 @@ const StudentDetails = ({ student }: StudentDetailsProps) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
-          <User className="h-10 w-10 text-primary" />
-        </div>
+        {student.photo_url ? (
+          <img
+            src={student.photo_url}
+            alt={student.full_name}
+            className="h-20 w-20 rounded-full object-cover border-2 border-border"
+          />
+        ) : (
+          <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
+            <User className="h-10 w-10 text-primary" />
+          </div>
+        )}
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold">{student.full_name}</h2>
