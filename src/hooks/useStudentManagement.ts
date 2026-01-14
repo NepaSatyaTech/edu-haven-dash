@@ -205,15 +205,73 @@ export const useStudent = (studentId?: string) => {
   });
 };
 
+// Get next roll number for a class/section
+export const useNextRollNumber = (classId?: string, sectionId?: string) => {
+  return useQuery({
+    queryKey: ['next-roll-number', classId, sectionId],
+    queryFn: async () => {
+      if (!classId || !sectionId) return 1;
+      const { data, error } = await supabase
+        .from('students')
+        .select('roll_number')
+        .eq('class_id', classId)
+        .eq('section_id', sectionId)
+        .order('roll_number', { ascending: false })
+        .limit(1);
+      if (error) throw error;
+      return data.length > 0 ? (data[0].roll_number + 1) : 1;
+    },
+    enabled: !!classId && !!sectionId,
+  });
+};
+
+// Generate student ID
+const generateStudentId = (classId: string, rollNumber: number): string => {
+  const year = new Date().getFullYear();
+  const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  return `STU${year}${randomNum}${rollNumber.toString().padStart(3, '0')}`;
+};
+
 // Create Student
 export const useCreateStudent = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (student: { full_name: string; father_name: string; mother_name: string; date_of_birth: string; class_id: string; section_id: string; roll_number: number; student_id: string; phone?: string | null; email?: string | null; address?: string | null; status: 'active' | 'inactive' | 'graduated' | 'transferred' }) => {
+    mutationFn: async (student: { 
+      full_name: string; 
+      father_name: string; 
+      mother_name: string; 
+      date_of_birth: string; 
+      class_id: string; 
+      section_id: string; 
+      roll_number?: number;
+      student_id?: string;
+      phone?: string | null; 
+      email?: string | null; 
+      address?: string | null; 
+      status: 'active' | 'inactive' | 'graduated' | 'transferred' 
+    }) => {
+      // Get next roll number if not provided
+      let rollNumber = student.roll_number;
+      if (!rollNumber) {
+        const { data: existingStudents } = await supabase
+          .from('students')
+          .select('roll_number')
+          .eq('class_id', student.class_id)
+          .eq('section_id', student.section_id)
+          .order('roll_number', { ascending: false })
+          .limit(1);
+        rollNumber = (existingStudents && existingStudents.length > 0) 
+          ? existingStudents[0].roll_number + 1 
+          : 1;
+      }
+
+      // Generate student ID if not provided
+      const studentId = student.student_id || generateStudentId(student.class_id, rollNumber);
+
       const { data, error } = await supabase
         .from('students')
-        .insert([student])
+        .insert([{ ...student, roll_number: rollNumber, student_id: studentId }])
         .select()
         .single();
       if (error) throw error;
@@ -221,10 +279,85 @@ export const useCreateStudent = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['next-roll-number'] });
       toast.success('Student registered successfully!');
     },
     onError: (error: Error) => {
       toast.error(`Failed to register student: ${error.message}`);
+    },
+  });
+};
+
+// Bulk Create Students
+export const useBulkCreateStudents = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (students: Array<{
+      full_name: string;
+      father_name: string;
+      mother_name: string;
+      date_of_birth: string;
+      class_id: string;
+      section_id: string;
+      roll_number?: number;
+      student_id?: string;
+      phone?: string | null;
+      email?: string | null;
+      address?: string | null;
+      status: 'active' | 'inactive' | 'graduated' | 'transferred';
+    }>) => {
+      // Group students by class and section for roll number assignment
+      const groupedStudents = students.reduce((acc, student) => {
+        const key = `${student.class_id}-${student.section_id}`;
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(student);
+        return acc;
+      }, {} as Record<string, typeof students>);
+
+      const processedStudents = [];
+      
+      for (const [key, groupStudents] of Object.entries(groupedStudents)) {
+        const [classId, sectionId] = key.split('-');
+        
+        // Get current max roll number for this class/section
+        const { data: existingStudents } = await supabase
+          .from('students')
+          .select('roll_number')
+          .eq('class_id', classId)
+          .eq('section_id', sectionId)
+          .order('roll_number', { ascending: false })
+          .limit(1);
+        
+        let nextRoll = (existingStudents && existingStudents.length > 0) 
+          ? existingStudents[0].roll_number + 1 
+          : 1;
+
+        for (const student of groupStudents) {
+          const rollNumber = student.roll_number || nextRoll++;
+          const studentId = student.student_id || generateStudentId(classId, rollNumber);
+          processedStudents.push({
+            ...student,
+            roll_number: rollNumber,
+            student_id: studentId,
+          });
+        }
+      }
+
+      const { data, error } = await supabase
+        .from('students')
+        .insert(processedStudents)
+        .select();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['next-roll-number'] });
+      toast.success(`${data.length} students imported successfully!`);
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to import students: ${error.message}`);
     },
   });
 };
