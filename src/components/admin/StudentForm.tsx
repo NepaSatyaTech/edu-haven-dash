@@ -54,17 +54,28 @@ const StudentForm = ({ student, onSuccess }: StudentFormProps) => {
   const { data: sections = [] } = useSections(selectedClassId || undefined);
 
   const onSubmit = async (data: StudentFormData) => {
-    const submitData = {
-      ...data,
-      phone: data.phone || null,
-      email: data.email || null,
-      address: data.address || null,
-    };
-
     if (student) {
-      await updateStudent.mutateAsync({ id: student.id, ...submitData });
+      await updateStudent.mutateAsync({ 
+        id: student.id, 
+        ...data,
+        phone: data.phone || null,
+        email: data.email || null,
+        address: data.address || null,
+      });
     } else {
-      await createStudent.mutateAsync(submitData as any);
+      // Roll number and student_id are auto-generated in the hook
+      await createStudent.mutateAsync({
+        full_name: data.full_name,
+        father_name: data.father_name,
+        mother_name: data.mother_name,
+        date_of_birth: data.date_of_birth,
+        class_id: data.class_id,
+        section_id: data.section_id,
+        status: data.status,
+        phone: data.phone || null,
+        email: data.email || null,
+        address: data.address || null,
+      });
     }
     onSuccess?.();
   };

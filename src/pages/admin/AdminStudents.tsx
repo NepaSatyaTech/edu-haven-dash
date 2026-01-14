@@ -7,9 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Plus, Search, Edit, Trash2, Eye, Users } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Search, Edit, Trash2, Eye, Users, Upload } from 'lucide-react';
 import StudentForm from '@/components/admin/StudentForm';
 import StudentDetails from '@/components/admin/StudentDetails';
+import StudentBulkImport from '@/components/admin/StudentBulkImport';
 
 const AdminStudents = () => {
   const [selectedClass, setSelectedClass] = useState<string>('');
@@ -66,9 +68,26 @@ const AdminStudents = () => {
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Register New Student</DialogTitle>
+              <DialogTitle>Add Students</DialogTitle>
             </DialogHeader>
-            <StudentForm onSuccess={() => setIsAddDialogOpen(false)} />
+            <Tabs defaultValue="single" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="single">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Single Student
+                </TabsTrigger>
+                <TabsTrigger value="bulk">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Bulk Import
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="single" className="mt-4">
+                <StudentForm onSuccess={() => setIsAddDialogOpen(false)} />
+              </TabsContent>
+              <TabsContent value="bulk" className="mt-4">
+                <StudentBulkImport onSuccess={() => setIsAddDialogOpen(false)} />
+              </TabsContent>
+            </Tabs>
           </DialogContent>
         </Dialog>
       </div>
