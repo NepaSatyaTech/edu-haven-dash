@@ -210,7 +210,7 @@ export const useCreateStudent = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (student: { full_name: string; father_name: string; mother_name: string; date_of_birth: string; class_id: string; section_id: string; phone?: string | null; email?: string | null; address?: string | null; status: 'active' | 'inactive' | 'graduated' | 'transferred' }) => {
+    mutationFn: async (student: { full_name: string; father_name: string; mother_name: string; date_of_birth: string; class_id: string; section_id: string; roll_number: number; student_id: string; phone?: string | null; email?: string | null; address?: string | null; status: 'active' | 'inactive' | 'graduated' | 'transferred' }) => {
       const { data, error } = await supabase
         .from('students')
         .insert([student])
