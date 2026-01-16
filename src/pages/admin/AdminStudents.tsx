@@ -8,10 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Search, Edit, Trash2, Eye, Users, Upload } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, Users, Upload, CreditCard } from 'lucide-react';
 import StudentForm from '@/components/admin/StudentForm';
 import StudentDetails from '@/components/admin/StudentDetails';
 import StudentBulkImport from '@/components/admin/StudentBulkImport';
+import { StudentIDCardGenerator } from '@/components/admin/StudentIDCardGenerator';
 
 const AdminStudents = () => {
   const [selectedClass, setSelectedClass] = useState<string>('');
@@ -20,6 +21,8 @@ const AdminStudents = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
+  const [isIDCardGeneratorOpen, setIsIDCardGeneratorOpen] = useState(false);
+  const [idCardStudent, setIdCardStudent] = useState<Student | null>(null);
 
   const { data: classes = [] } = useClasses();
   const { data: sections = [] } = useSections(selectedClass || undefined);
@@ -59,13 +62,18 @@ const AdminStudents = () => {
           </h1>
           <p className="text-muted-foreground">Register and manage students class-wise</p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Student
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsIDCardGeneratorOpen(true)}>
+            <CreditCard className="h-4 w-4 mr-2" />
+            ID Cards
+          </Button>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Student
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add Students</DialogTitle>
@@ -90,6 +98,7 @@ const AdminStudents = () => {
             </Tabs>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Filters */}
@@ -207,13 +216,25 @@ const AdminStudents = () => {
                   </TableCell>
                   <TableCell>{getStatusBadge(student.status)}</TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-1">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => setViewingStudent(student)}
+                        title="View Details"
                       >
                         <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setIdCardStudent(student);
+                          setIsIDCardGeneratorOpen(true);
+                        }}
+                        title="Generate ID Card"
+                      >
+                        <CreditCard className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -279,6 +300,16 @@ const AdminStudents = () => {
           {viewingStudent && <StudentDetails student={viewingStudent} />}
         </DialogContent>
       </Dialog>
+
+      {/* ID Card Generator */}
+      <StudentIDCardGenerator
+        open={isIDCardGeneratorOpen}
+        onOpenChange={(open) => {
+          setIsIDCardGeneratorOpen(open);
+          if (!open) setIdCardStudent(null);
+        }}
+        preSelectedStudent={idCardStudent || undefined}
+      />
     </div>
   );
 };
