@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Eye, Check, X, Clock } from 'lucide-react';
+import { Eye, Check, X, Clock, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { ConvertToStudent } from '@/components/admin/ConvertToStudent';
 
 interface Admission {
   id: string;
@@ -22,6 +23,8 @@ const AdminAdmissions = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAdmission, setSelectedAdmission] = useState<Admission | null>(null);
   const [filter, setFilter] = useState('all');
+  const [convertDialogOpen, setConvertDialogOpen] = useState(false);
+  const [admissionToConvert, setAdmissionToConvert] = useState<Admission | null>(null);
   const { toast } = useToast();
 
   const fetchAdmissions = async () => {
@@ -77,6 +80,11 @@ const AdminAdmissions = () => {
     if (!admission.is_read) {
       markAsRead(admission.id);
     }
+  };
+
+  const handleConvertToStudent = (admission: Admission) => {
+    setAdmissionToConvert(admission);
+    setConvertDialogOpen(true);
   };
 
   const filteredAdmissions = filter === 'all'
@@ -241,22 +249,29 @@ const AdminAdmissions = () => {
               </div>
 
               {selectedAdmission.status === 'pending' && (
-                <div className="flex gap-3">
+                <div className="space-y-3">
                   <Button
-                    onClick={() => updateStatus(selectedAdmission.id, 'approved')}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                    onClick={() => handleConvertToStudent(selectedAdmission)}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2"
                   >
-                    <Check className="w-4 h-4 mr-2" />
-                    Approve
+                    <UserPlus className="w-4 h-4" />
+                    Approve & Enroll Student
                   </Button>
                   <Button
                     variant="destructive"
                     onClick={() => updateStatus(selectedAdmission.id, 'rejected')}
-                    className="flex-1"
+                    className="w-full"
                   >
                     <X className="w-4 h-4 mr-2" />
-                    Reject
+                    Reject Application
                   </Button>
+                </div>
+              )}
+
+              {selectedAdmission.status === 'approved' && (
+                <div className="p-4 bg-emerald-500/10 rounded-lg text-center">
+                  <Check className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                  <p className="text-emerald-600 font-medium">Student has been enrolled</p>
                 </div>
               )}
 
@@ -278,6 +293,19 @@ const AdminAdmissions = () => {
             </div>
           )}
         </div>
+      )}
+
+      {/* Convert to Student Dialog */}
+      {admissionToConvert && (
+        <ConvertToStudent
+          admission={admissionToConvert}
+          open={convertDialogOpen}
+          onOpenChange={setConvertDialogOpen}
+          onSuccess={() => {
+            fetchAdmissions();
+            setSelectedAdmission(null);
+          }}
+        />
       )}
     </div>
   );

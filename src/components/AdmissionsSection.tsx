@@ -1,12 +1,22 @@
-import { useState } from 'react';
-import { FileText, ClipboardCheck, Users, CheckCircle, Download, ArrowRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileText, ClipboardCheck, Users, CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Class {
+  id: string;
+  name: string;
+  grade_level: number;
+}
 
 export const AdmissionsSection = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const steps = [
     {
@@ -61,23 +71,72 @@ export const AdmissionsSection = () => {
     message: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Fetch classes for dropdown
+  useEffect(() => {
+    const fetchClasses = async () => {
+      const { data } = await supabase
+        .from('classes')
+        .select('*')
+        .order('grade_level');
+      setClasses(data || []);
+    };
+    fetchClasses();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: t('Inquiry Submitted!', 'अनुसन्धान पेश गरियो!'),
-      description: t(
-        "Thank you for your interest. We'll contact you within 24 hours.",
-        'रुचिका लागि धन्यवाद। हामी २४ घण्टाभित्र सम्पर्क गर्नेछौं।'
-      ),
-    });
-    setFormData({
-      studentName: '',
-      parentName: '',
-      email: '',
-      phone: '',
-      grade: '',
-      message: '',
-    });
+    
+    if (!formData.studentName || !formData.parentName || !formData.email || !formData.phone || !formData.grade) {
+      toast({
+        title: t('Missing Information', 'जानकारी छुटेको छ'),
+        description: t('Please fill all required fields', 'कृपया सबै आवश्यक फिल्डहरू भर्नुहोस्'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase
+        .from('admission_inquiries')
+        .insert({
+          student_name: formData.studentName.trim(),
+          parent_name: formData.parentName.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          grade: formData.grade,
+          message: formData.message.trim() || null,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: t('Application Submitted!', 'आवेदन पेश गरियो!'),
+        description: t(
+          "Thank you for your interest. We'll contact you within 24 hours.",
+          'रुचिका लागि धन्यवाद। हामी २४ घण्टाभित्र सम्पर्क गर्नेछौं।'
+        ),
+      });
+      
+      setFormData({
+        studentName: '',
+        parentName: '',
+        email: '',
+        phone: '',
+        grade: '',
+        message: '',
+      });
+    } catch (error) {
+      console.error('Error submitting admission:', error);
+      toast({
+        title: t('Error', 'त्रुटि'),
+        description: t('Failed to submit application. Please try again.', 'आवेदन पेश गर्न असफल। कृपया पुन: प्रयास गर्नुहोस्।'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -161,40 +220,70 @@ export const AdmissionsSection = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               <input
                 required
-                placeholder={t('Student Name', 'विद्यार्थीको नाम')}
+                placeholder={t('Student Name *', 'विद्यार्थीको नाम *')}
                 value={formData.studentName}
                 onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg bg-muted border"
+                className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none"
               />
 
               <input
                 required
-                placeholder={t('Parent Name', 'अभिभावकको नाम')}
+                placeholder={t('Parent/Guardian Name *', 'अभिभावकको नाम *')}
                 value={formData.parentName}
                 onChange={(e) => setFormData({ ...formData, parentName: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg bg-muted border"
+                className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none"
               />
 
               <input
                 required
                 type="email"
-                placeholder={t('Email Address', 'इमेल ठेगाना')}
+                placeholder={t('Email Address *', 'इमेल ठेगाना *')}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg bg-muted border"
+                className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none"
               />
 
               <input
                 required
-                placeholder={t('Phone Number', 'फोन नम्बर')}
+                placeholder={t('Phone Number *', 'फोन नम्बर *')}
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg bg-muted border"
+                className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none"
               />
 
-              <Button type="submit" variant="gold" size="lg" className="w-full gap-2">
-                {t('Submit Inquiry', 'अनुसन्धान पेश गर्नुहोस्')}
-                <ArrowRight className="w-4 h-4" />
+              <Select value={formData.grade} onValueChange={(value) => setFormData({ ...formData, grade: value })}>
+                <SelectTrigger className="w-full h-12 bg-muted border-border">
+                  <SelectValue placeholder={t('Select Grade *', 'कक्षा छान्नुहोस् *')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {classes.map((cls) => (
+                    <SelectItem key={cls.id} value={cls.name}>
+                      {cls.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <textarea
+                placeholder={t('Additional Message (Optional)', 'थप सन्देश (ऐच्छिक)')}
+                value={formData.message}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                rows={3}
+                className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none resize-none"
+              />
+
+              <Button type="submit" variant="gold" size="lg" className="w-full gap-2" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {t('Submitting...', 'पेश गर्दै...')}
+                  </>
+                ) : (
+                  <>
+                    {t('Submit Application', 'आवेदन पेश गर्नुहोस्')}
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </Button>
             </form>
           </div>
