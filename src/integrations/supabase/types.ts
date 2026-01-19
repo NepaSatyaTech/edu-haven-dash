@@ -80,6 +80,67 @@ export type Database = {
         }
         Relationships: []
       }
+      attendance: {
+        Row: {
+          class_id: string
+          created_at: string
+          date: string
+          id: string
+          marked_by: string | null
+          remarks: string | null
+          section_id: string
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          date?: string
+          id?: string
+          marked_by?: string | null
+          remarks?: string | null
+          section_id: string
+          status: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          date?: string
+          id?: string
+          marked_by?: string | null
+          remarks?: string | null
+          section_id?: string
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_subjects: {
         Row: {
           class_id: string
@@ -482,6 +543,7 @@ export type Database = {
       students: {
         Row: {
           address: string | null
+          admission_id: string | null
           class_id: string
           created_at: string
           date_of_birth: string
@@ -500,6 +562,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          admission_id?: string | null
           class_id: string
           created_at?: string
           date_of_birth: string
@@ -518,6 +581,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          admission_id?: string | null
           class_id?: string
           created_at?: string
           date_of_birth?: string
@@ -535,6 +599,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "students_admission_id_fkey"
+            columns: ["admission_id"]
+            isOneToOne: false
+            referencedRelation: "admission_inquiries"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "students_class_id_fkey"
             columns: ["class_id"]

@@ -18,6 +18,12 @@ import AdminMessages from "./pages/admin/AdminMessages";
 import AdminAdmissions from "./pages/admin/AdminAdmissions";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
+import AdminStudents from "./pages/admin/AdminStudents";
+import AdminAttendance from "./pages/admin/AdminAttendance";
+import AdminSubjects from "./pages/admin/AdminSubjects";
+import AdminExams from "./pages/admin/AdminExams";
+import AdminMarksEntry from "./pages/admin/AdminMarksEntry";
+import AdminMarksheets from "./pages/admin/AdminMarksheets";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +48,12 @@ const App = () => (
                 <Route path="messages" element={<AdminMessages />} />
                 <Route path="admissions" element={<AdminAdmissions />} />
                 <Route path="settings" element={<AdminSettings />} />
+                <Route path="students" element={<AdminStudents />} />
+                <Route path="attendance" element={<AdminAttendance />} />
+                <Route path="subjects" element={<AdminSubjects />} />
+                <Route path="exams" element={<AdminExams />} />
+                <Route path="marks" element={<AdminMarksEntry />} />
+                <Route path="marksheets" element={<AdminMarksheets />} />
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

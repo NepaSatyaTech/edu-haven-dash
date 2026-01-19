@@ -15,6 +15,11 @@ import {
   ChevronRight,
   Settings,
   Quote,
+  UserCheck,
+  ClipboardList,
+  BookOpen,
+  Award,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -29,6 +34,12 @@ const navItems = [
   { name: 'Testimonials', href: '/admin/testimonials', icon: Quote },
   { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
   { name: 'Admissions', href: '/admin/admissions', icon: FileText },
+  { name: 'Students', href: '/admin/students', icon: UserCheck },
+  { name: 'Attendance', href: '/admin/attendance', icon: ClipboardList },
+  { name: 'Subjects', href: '/admin/subjects', icon: BookOpen },
+  { name: 'Exams', href: '/admin/exams', icon: Award },
+  { name: 'Marks Entry', href: '/admin/marks', icon: FileSpreadsheet },
+  { name: 'Marksheets', href: '/admin/marksheets', icon: FileText },
 ];
 
 const AdminLayout = () => {
