@@ -24,6 +24,7 @@ import AdminSubjects from "./pages/admin/AdminSubjects";
 import AdminExams from "./pages/admin/AdminExams";
 import AdminMarksEntry from "./pages/admin/AdminMarksEntry";
 import AdminMarksheets from "./pages/admin/AdminMarksheets";
+import AdminIDCards from "./pages/admin/AdminIDCards";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="exams" element={<AdminExams />} />
                 <Route path="marks" element={<AdminMarksEntry />} />
                 <Route path="marksheets" element={<AdminMarksheets />} />
+                <Route path="id-cards" element={<AdminIDCards />} />
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

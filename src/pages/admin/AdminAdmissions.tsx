@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ConvertToStudent } from '@/components/admin/ConvertToStudent';
+import { TeacherAdmissionForm } from '@/components/admin/TeacherAdmissionForm';
 
 interface Admission {
   id: string;
@@ -125,7 +126,13 @@ const AdminAdmissions = () => {
             Manage admission inquiries {pendingCount > 0 && `(${pendingCount} pending)`}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+          <TeacherAdmissionForm onSuccess={fetchAdmissions} />
+        </div>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex gap-2">
           {['all', 'pending', 'approved', 'rejected'].map((f) => (
             <button
               key={f}
