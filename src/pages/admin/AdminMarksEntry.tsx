@@ -188,7 +188,21 @@ const AdminMarksEntry = () => {
         </Badge>
       </div>
 
+      {/* No subjects warning */}
+      {classSubjects.length === 0 && (
+        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-yellow-700 mb-2">No Subjects Assigned</h3>
+          <p className="text-muted-foreground mb-4">
+            There are no subjects assigned to {exam.classes?.name}. Please add subjects first.
+          </p>
+          <Button variant="outline" onClick={() => navigate('/admin/subjects')}>
+            Go to Subjects Management
+          </Button>
+        </div>
+      )}
+
       {/* Marks Entry Table */}
+      {classSubjects.length > 0 && (
       <div className="border rounded-lg overflow-x-auto">
         <Table>
           <TableHeader>
@@ -199,13 +213,13 @@ const AdminMarksEntry = () => {
                 <TableHead key={cs.subject_id} className="text-center min-w-[100px]">
                   <div>{cs.subjects.name}</div>
                   <div className="text-xs font-normal text-muted-foreground">
-                    ({cs.subjects.full_marks})
+                    FM: {cs.subjects.full_marks} | PM: {cs.subjects.pass_marks}
                   </div>
                 </TableHead>
               ))}
               <TableHead className="text-center">Total</TableHead>
               <TableHead className="text-center">%</TableHead>
-              <TableHead className="text-center">GPA</TableHead>
+              <TableHead className="text-center">Grade</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -289,6 +303,7 @@ const AdminMarksEntry = () => {
           </TableBody>
         </Table>
       </div>
+      )}
 
       {/* Legend */}
       <div className="bg-muted/50 rounded-lg p-4">
