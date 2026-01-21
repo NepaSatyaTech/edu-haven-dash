@@ -212,7 +212,7 @@ const AdminExams = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigate(`/admin/marks/${exam.id}`)}
+                        onClick={() => navigate(`/admin/marks-entry/${exam.id}`)}
                       >
                         Enter Marks
                       </Button>

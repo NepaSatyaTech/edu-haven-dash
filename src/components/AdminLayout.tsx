@@ -19,7 +19,6 @@ import {
   ClipboardList,
   BookOpen,
   Award,
-  FileSpreadsheet,
   CreditCard,
   UserPlus,
 } from 'lucide-react';
@@ -42,7 +41,6 @@ const teacherItems = [
   { name: 'Attendance', href: '/admin/attendance', icon: ClipboardList },
   { name: 'Subjects', href: '/admin/subjects', icon: BookOpen },
   { name: 'Exams', href: '/admin/exams', icon: Award },
-  { name: 'Marks Entry', href: '/admin/marks', icon: FileSpreadsheet },
   { name: 'Marksheets', href: '/admin/marksheets', icon: FileText },
   { name: 'ID Cards', href: '/admin/id-cards', icon: CreditCard },
 ];
