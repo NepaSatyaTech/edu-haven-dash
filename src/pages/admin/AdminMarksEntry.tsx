@@ -296,7 +296,7 @@ const AdminMarksEntry = () => {
         <div className="flex-1">
           <h1 className="text-2xl font-bold">{exam.name}</h1>
           <p className="text-muted-foreground">
-            {exam.classes?.name} • {exam.academic_years?.name}
+            {exam.academic_years?.name}
           </p>
         </div>
         <Button onClick={handleSaveMarks} disabled={saveMarks.isPending}>
@@ -307,6 +307,30 @@ const AdminMarksEntry = () => {
           )}
           Save Marks
         </Button>
+      </div>
+
+      {/* Exam Info Card */}
+      <div className="bg-muted/30 border rounded-lg p-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Class:</span>
+            <Badge variant="secondary" className="text-sm font-semibold">
+              {exam.classes?.name}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Exam Type:</span>
+            <Badge variant="outline" className="text-sm">
+              {exam.exam_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            </Badge>
+          </div>
+          {exam.start_date && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Date:</span>
+              <span className="text-sm">{new Date(exam.start_date).toLocaleDateString()}</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Import/Export Actions */}
@@ -334,20 +358,23 @@ const AdminMarksEntry = () => {
       )}
 
       {/* Section Filter */}
-      <div className="flex gap-4">
-        <Select value={selectedSection || 'all'} onValueChange={(v) => setSelectedSection(v === 'all' ? '' : v)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select Section" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Sections</SelectItem>
-            {sections.map((section) => (
-              <SelectItem key={section.id} value={section.id}>
-                Section {section.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Filter by Section:</span>
+          <Select value={selectedSection || 'all'} onValueChange={(v) => setSelectedSection(v === 'all' ? '' : v)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Section" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Sections</SelectItem>
+              {sections.map((section) => (
+                <SelectItem key={section.id} value={section.id}>
+                  Section {section.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Badge variant="outline" className="h-10 px-4 flex items-center">
           {students.length} Students
         </Badge>
