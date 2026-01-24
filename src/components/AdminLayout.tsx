@@ -21,6 +21,8 @@ import {
   Award,
   CreditCard,
   UserPlus,
+  BarChart3,
+  BookMarked,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -39,9 +41,11 @@ const teacherItems = [
   { name: 'Admissions', href: '/admin/admissions', icon: UserPlus },
   { name: 'Students', href: '/admin/students', icon: UserCheck },
   { name: 'Attendance', href: '/admin/attendance', icon: ClipboardList },
+  { name: 'Attendance Reports', href: '/admin/attendance-reports', icon: BarChart3 },
   { name: 'Subjects', href: '/admin/subjects', icon: BookOpen },
   { name: 'Exams', href: '/admin/exams', icon: Award },
   { name: 'Marksheets', href: '/admin/marksheets', icon: FileText },
+  { name: 'Combined Marksheet', href: '/admin/combined-marksheets', icon: BookMarked },
   { name: 'ID Cards', href: '/admin/id-cards', icon: CreditCard },
 ];
 
