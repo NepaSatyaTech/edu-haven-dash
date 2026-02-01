@@ -238,3 +238,12 @@
     transform: translateX(0);
   }
 }
+@media print {
+  body {
+    background: white;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+}

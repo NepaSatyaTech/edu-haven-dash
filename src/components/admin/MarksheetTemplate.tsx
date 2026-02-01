@@ -1,7 +1,7 @@
 import { useStudentMarksheet } from '@/hooks/useStudentManagement';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { format } from 'date-fns';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Printer } from 'lucide-react';
 
 interface MarksheetTemplateProps {
   studentId: string;
@@ -14,220 +14,163 @@ const MarksheetTemplate = ({ studentId, examId }: MarksheetTemplateProps) => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex justify-center py-20">
+        <Loader2 className="h-10 w-10 animate-spin text-gray-500" />
       </div>
     );
   }
 
   if (!marksheetData) {
-    return (
-      <div className="text-center py-12 text-muted-foreground">
-        Failed to load marksheet data
-      </div>
-    );
+    return <div className="text-center py-12">Failed to load marksheet</div>;
   }
 
   const { student, exam, marks } = marksheetData;
 
-  // Calculate totals
   let totalMarks = 0;
   let totalFullMarks = 0;
   let allPassed = true;
 
-  marks.forEach((mark) => {
-    if (mark.marks_obtained !== null && mark.subjects) {
-      totalMarks += Number(mark.marks_obtained);
-      totalFullMarks += mark.subjects.full_marks;
-      if (mark.marks_obtained < mark.subjects.pass_marks) {
-        allPassed = false;
-      }
+  marks.forEach((m) => {
+    if (m.marks_obtained !== null && m.subjects) {
+      totalMarks += Number(m.marks_obtained);
+      totalFullMarks += m.subjects.full_marks;
+      if (m.marks_obtained < m.subjects.pass_marks) allPassed = false;
     }
   });
 
-  const percentage = totalFullMarks > 0 ? ((totalMarks / totalFullMarks) * 100).toFixed(2) : '0';
-  const overallGrade = getOverallGrade(Number(percentage));
+  const percentage = ((totalMarks / totalFullMarks) * 100).toFixed(2);
   const result = allPassed ? 'PASS' : 'FAIL';
 
-  function getOverallGrade(percent: number): string {
-    if (percent >= 90) return 'A+';
-    if (percent >= 80) return 'A';
-    if (percent >= 70) return 'B+';
-    if (percent >= 60) return 'B';
-    if (percent >= 50) return 'C+';
-    if (percent >= 40) return 'C';
-    if (percent >= 32) return 'D+';
-    if (percent >= 20) return 'D';
+  const getGrade = (p: number) => {
+    if (p >= 90) return 'A+';
+    if (p >= 80) return 'A';
+    if (p >= 70) return 'B+';
+    if (p >= 60) return 'B';
+    if (p >= 50) return 'C+';
+    if (p >= 40) return 'C';
+    if (p >= 32) return 'D+';
     return 'E';
-  }
+  };
 
-  const schoolName = settings?.school_name?.value_en || 'School Name';
-  const schoolAddress = settings?.address?.value_en || 'School Address';
+  const overallGrade = getGrade(Number(percentage));
 
   return (
-    <div className="bg-white p-8 print:p-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-      {/* Header */}
-      <div className="text-center border-b-2 border-gray-800 pb-4 mb-6">
-        <div className="flex items-center justify-center gap-4 mb-2">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-            <span className="text-2xl font-bold text-primary">🏫</span>
+    <>
+      {/* PRINT BUTTON */}
+      <div className="flex justify-end mb-4 print:hidden">
+        <button
+          onClick={() => window.print()}
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded shadow"
+        >
+          <Printer size={18} />
+          Print Marksheet
+        </button>
+      </div>
+
+      {/* MARKSHEET PAGE */}
+      <div
+        className="mx-auto bg-white p-10 text-black print:p-6"
+        style={{
+          width: '210mm',
+          minHeight: '297mm',
+          fontFamily: 'Times New Roman, serif',
+        }}
+      >
+        {/* HEADER */}
+        <div className="text-center border-b-2 border-black pb-4 mb-6">
+          <h1 className="text-2xl font-bold uppercase">
+            Shree Lautan Ram Dropadi Devi Secondary School
+          </h1>
+          <p className="text-sm">Bijaynagar–7, Ganeshpur</p>
+          <p className="mt-2 font-semibold underline">MARKSHEET</p>
+          <p className="text-sm mt-1">{exam.name} | Academic Year: {exam.academic_years?.name}</p>
+        </div>
+
+        {/* STUDENT DETAILS */}
+        <div className="grid grid-cols-2 text-sm mb-6 gap-y-2">
+          <p><strong>Name:</strong> {student.full_name}</p>
+          <p><strong>Class:</strong> {student.classes?.name}</p>
+          <p><strong>Roll No:</strong> {student.roll_number}</p>
+          <p><strong>Section:</strong> {student.sections?.name}</p>
+          <p><strong>Father’s Name:</strong> {student.father_name}</p>
+          <p><strong>Student ID:</strong> {student.student_id}</p>
+        </div>
+
+        {/* MARKS TABLE */}
+        <table className="w-full border border-black text-sm mb-6">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="border p-2">SN</th>
+              <th className="border p-2 text-left">Subject</th>
+              <th className="border p-2">Full</th>
+              <th className="border p-2">Pass</th>
+              <th className="border p-2">Obtained</th>
+              <th className="border p-2">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            {marks.map((m, i) => (
+              <tr key={m.id}>
+                <td className="border p-2 text-center">{i + 1}</td>
+                <td className="border p-2">{m.subjects?.name}</td>
+                <td className="border p-2 text-center">{m.subjects?.full_marks}</td>
+                <td className="border p-2 text-center">{m.subjects?.pass_marks}</td>
+                <td className="border p-2 text-center">{m.marks_obtained ?? '-'}</td>
+                <td className="border p-2 text-center">{m.grade ?? '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot className="font-bold bg-gray-100">
+            <tr>
+              <td colSpan={2} className="border p-2 text-right">Total</td>
+              <td className="border p-2 text-center">{totalFullMarks}</td>
+              <td className="border p-2"></td>
+              <td className="border p-2 text-center">{totalMarks}</td>
+              <td className="border p-2 text-center">{overallGrade}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        {/* RESULT SUMMARY */}
+        <div className="grid grid-cols-3 text-center mb-10">
+          <div>
+            <p className="text-sm">Percentage</p>
+            <p className="text-xl font-bold">{percentage}%</p>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">{schoolName}</h1>
-            <p className="text-sm text-gray-600">{schoolAddress}</p>
+            <p className="text-sm">Grade</p>
+            <p className="text-xl font-bold">{overallGrade}</p>
+          </div>
+          <div>
+            <p className="text-sm">Result</p>
+            <p className={`text-xl font-bold ${result === 'PASS' ? 'text-green-600' : 'text-red-600'}`}>
+              {result}
+            </p>
           </div>
         </div>
-        <h2 className="text-xl font-semibold mt-4 text-gray-700">
-          {exam.name}
-        </h2>
-        <p className="text-sm text-gray-500">Academic Year: {exam.academic_years?.name}</p>
-      </div>
 
-      {/* Student Information */}
-      <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-        <div className="space-y-2">
-          <div className="flex">
-            <span className="font-semibold w-32">Student Name:</span>
-            <span>{student.full_name}</span>
+        {/* SIGNATURES */}
+        <div className="flex justify-between mt-16 text-sm">
+          <div className="text-center">
+            <div className="border-t border-black w-40 mx-auto mb-1"></div>
+            Class Teacher
           </div>
-          <div className="flex">
-            <span className="font-semibold w-32">Student ID:</span>
-            <span className="font-mono">{student.student_id}</span>
+          <div className="text-center">
+            <div className="border-t border-black w-40 mx-auto mb-1"></div>
+            Exam Controller
           </div>
-          <div className="flex">
-            <span className="font-semibold w-32">Father's Name:</span>
-            <span>{student.father_name}</span>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <div className="flex">
-            <span className="font-semibold w-32">Class:</span>
-            <span>{student.classes?.name}</span>
-          </div>
-          <div className="flex">
-            <span className="font-semibold w-32">Section:</span>
-            <span>{student.sections?.name}</span>
-          </div>
-          <div className="flex">
-            <span className="font-semibold w-32">Roll Number:</span>
-            <span>{student.roll_number}</span>
+          <div className="text-center">
+            <div className="border-t border-black w-40 mx-auto mb-1"></div>
+            Principal
           </div>
         </div>
-      </div>
 
-      {/* Marks Table */}
-      <table className="w-full border-collapse border border-gray-800 mb-6">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border border-gray-800 p-2 text-left">S.N.</th>
-            <th className="border border-gray-800 p-2 text-left">Subject</th>
-            <th className="border border-gray-800 p-2 text-center">Full Marks</th>
-            <th className="border border-gray-800 p-2 text-center">Pass Marks</th>
-            <th className="border border-gray-800 p-2 text-center">Marks Obtained</th>
-            <th className="border border-gray-800 p-2 text-center">Grade</th>
-            <th className="border border-gray-800 p-2 text-center">Remarks</th>
-          </tr>
-        </thead>
-        <tbody>
-          {marks.map((mark, index) => {
-            const passed = mark.marks_obtained !== null && mark.subjects 
-              ? mark.marks_obtained >= mark.subjects.pass_marks 
-              : false;
-            return (
-              <tr key={mark.id}>
-                <td className="border border-gray-800 p-2">{index + 1}</td>
-                <td className="border border-gray-800 p-2">{mark.subjects?.name}</td>
-                <td className="border border-gray-800 p-2 text-center">{mark.subjects?.full_marks}</td>
-                <td className="border border-gray-800 p-2 text-center">{mark.subjects?.pass_marks}</td>
-                <td className="border border-gray-800 p-2 text-center font-medium">
-                  {mark.marks_obtained ?? '-'}
-                </td>
-                <td className="border border-gray-800 p-2 text-center font-semibold">
-                  {mark.grade || '-'}
-                </td>
-                <td className={`border border-gray-800 p-2 text-center ${passed ? 'text-green-600' : 'text-red-600'}`}>
-                  {mark.marks_obtained !== null ? (passed ? 'Pass' : 'Fail') : '-'}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-        <tfoot>
-          <tr className="bg-gray-100 font-semibold">
-            <td colSpan={2} className="border border-gray-800 p-2 text-right">Total</td>
-            <td className="border border-gray-800 p-2 text-center">{totalFullMarks}</td>
-            <td className="border border-gray-800 p-2 text-center">-</td>
-            <td className="border border-gray-800 p-2 text-center">{totalMarks}</td>
-            <td className="border border-gray-800 p-2 text-center">{overallGrade}</td>
-            <td className="border border-gray-800 p-2 text-center">-</td>
-          </tr>
-        </tfoot>
-      </table>
-
-      {/* Summary */}
-      <div className="grid grid-cols-3 gap-4 mb-8 text-center">
-        <div className="border border-gray-800 p-4">
-          <p className="text-sm text-gray-600">Percentage</p>
-          <p className="text-2xl font-bold">{percentage}%</p>
-        </div>
-        <div className="border border-gray-800 p-4">
-          <p className="text-sm text-gray-600">Grade</p>
-          <p className="text-2xl font-bold">{overallGrade}</p>
-        </div>
-        <div className={`border border-gray-800 p-4 ${result === 'PASS' ? 'bg-green-50' : 'bg-red-50'}`}>
-          <p className="text-sm text-gray-600">Result</p>
-          <p className={`text-2xl font-bold ${result === 'PASS' ? 'text-green-600' : 'text-red-600'}`}>
-            {result}
-          </p>
-        </div>
+        {/* FOOTER */}
+        <p className="text-center text-xs mt-6">
+          Generated on {format(new Date(), 'PPP')} • Computer Generated Marksheet
+        </p>
       </div>
-
-      {/* Grade Scale */}
-      <div className="mb-8 text-xs">
-        <p className="font-semibold mb-2">Grade Scale:</p>
-        <div className="flex flex-wrap gap-2">
-          <span>A+ (90-100)</span>
-          <span>|</span>
-          <span>A (80-89)</span>
-          <span>|</span>
-          <span>B+ (70-79)</span>
-          <span>|</span>
-          <span>B (60-69)</span>
-          <span>|</span>
-          <span>C+ (50-59)</span>
-          <span>|</span>
-          <span>C (40-49)</span>
-          <span>|</span>
-          <span>D+ (32-39)</span>
-          <span>|</span>
-          <span>D (20-31)</span>
-          <span>|</span>
-          <span>E (Below 20)</span>
-        </div>
-      </div>
-
-      {/* Signatures */}
-      <div className="flex justify-between mt-16 pt-8">
-        <div className="text-center">
-          <div className="border-t border-gray-800 w-40 mx-auto mb-2"></div>
-          <p className="text-sm">Class Teacher</p>
-        </div>
-        <div className="text-center">
-          <div className="border-t border-gray-800 w-40 mx-auto mb-2"></div>
-          <p className="text-sm">Exam Controller</p>
-        </div>
-        <div className="text-center">
-          <div className="border-t border-gray-800 w-40 mx-auto mb-2"></div>
-          <p className="text-sm">Principal</p>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="text-center mt-8 pt-4 border-t text-xs text-gray-500">
-        <p>This is a computer-generated marksheet. No signature required if digitally verified.</p>
-        <p>Generated on: {format(new Date(), 'PPP')}</p>
-      </div>
-    </div>
+    </>
   );
 };
 
