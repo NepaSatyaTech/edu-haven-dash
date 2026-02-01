@@ -247,3 +247,15 @@
     display: none !important;
   }
 }
+@media print {
+  table {
+    border-collapse: collapse !important;
+  }
+
+  td,
+  th {
+    color: black !important;
+    background: white !important;
+  }
+}
+
