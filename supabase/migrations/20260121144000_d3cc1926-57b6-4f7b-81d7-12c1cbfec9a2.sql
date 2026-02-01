@@ -1,0 +1,2 @@
+-- Add unique constraint for marks table to enable upsert on student_id, exam_id, subject_id
+ALTER TABLE public.marks ADD CONSTRAINT marks_student_exam_subject_unique UNIQUE (student_id, exam_id, subject_id);

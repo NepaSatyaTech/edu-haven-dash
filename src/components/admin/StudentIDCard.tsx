@@ -25,64 +25,75 @@ export function StudentIDCard({
     roll: student.roll_number,
   });
 
+  // Convert photo URL to a format that works in print
+  const getPhotoUrl = (url: string | null | undefined) => {
+    if (!url) return null;
+    // If it's a relative URL or already has crossorigin support, return as is
+    return url;
+  };
+
+  const photoUrl = getPhotoUrl(student.photo_url);
+
   return (
-    <div className="id-card w-[3.375in] h-[2.125in] bg-gradient-to-br from-primary/10 via-background to-primary/5 border-2 border-primary/30 rounded-lg overflow-hidden shadow-lg print:shadow-none relative">
+    <div className="id-card w-[3.375in] h-[2.125in] bg-gradient-to-br from-primary/10 via-background to-primary/5 border-2 border-primary/30 rounded-lg overflow-hidden shadow-lg print:shadow-none relative" style={{ printColorAdjust: 'exact', WebkitPrintColorAdjust: 'exact' }}>
       {/* Header */}
-      <div className="bg-primary text-primary-foreground px-3 py-2 text-center">
+      <div className="card-header bg-primary text-primary-foreground px-3 py-2 text-center" style={{ background: 'hsl(222.2 47.4% 11.2%)', color: 'white' }}>
         <h1 className="text-sm font-bold tracking-wide">{schoolName}</h1>
         <p className="text-[10px] opacity-90">{schoolAddress}</p>
       </div>
 
       {/* Body */}
-      <div className="flex p-3 gap-3">
+      <div className="card-body flex p-3 gap-3">
         {/* Photo Section */}
-        <div className="flex flex-col items-center gap-1">
-          <div className="w-[1in] h-[1.2in] border-2 border-primary/30 rounded-md overflow-hidden bg-white flex items-center justify-center">
-            {student.photo_url ? (
+        <div className="photo-section flex flex-col items-center gap-1">
+          <div className="photo-box w-[1in] h-[1.2in] border-2 border-primary/30 rounded-md overflow-hidden bg-white flex items-center justify-center">
+            {photoUrl ? (
               <img
-                src={student.photo_url}
+                src={photoUrl}
                 alt={student.full_name}
                 className="w-full h-full object-cover"
+                crossOrigin="anonymous"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             ) : (
               <User className="w-10 h-10 text-muted-foreground" />
             )}
           </div>
-          <p className="text-[8px] text-muted-foreground font-medium">
+          <p className="roll-text text-[8px] text-muted-foreground font-medium">
             Roll No: {student.roll_number}
           </p>
         </div>
 
         {/* Info Section */}
-        <div className="flex-1 flex flex-col justify-between text-[10px]">
+        <div className="info-section flex-1 flex flex-col justify-between text-[10px]">
           <div className="space-y-1">
-            <div>
-              <p className="text-[8px] text-muted-foreground uppercase tracking-wider">Student Name</p>
-              <p className="font-bold text-xs leading-tight">{student.full_name}</p>
+            <div className="info-row">
+              <p className="info-label text-[8px] text-muted-foreground uppercase tracking-wider">Student Name</p>
+              <p className="info-value name font-bold text-xs leading-tight">{student.full_name}</p>
             </div>
-            <div>
-              <p className="text-[8px] text-muted-foreground uppercase tracking-wider">Student ID</p>
-              <p className="font-mono font-semibold">{student.student_id}</p>
+            <div className="info-row">
+              <p className="info-label text-[8px] text-muted-foreground uppercase tracking-wider">Student ID</p>
+              <p className="info-value mono font-mono font-semibold">{student.student_id}</p>
             </div>
-            <div className="flex gap-4">
+            <div className="info-flex flex gap-4">
               <div>
-                <p className="text-[8px] text-muted-foreground uppercase tracking-wider">Class</p>
-                <p className="font-semibold">{student.classes?.name}</p>
+                <p className="info-label text-[8px] text-muted-foreground uppercase tracking-wider">Class</p>
+                <p className="info-value font-semibold">{student.classes?.name}</p>
               </div>
               <div>
-                <p className="text-[8px] text-muted-foreground uppercase tracking-wider">Section</p>
-                <p className="font-semibold">{student.sections?.name}</p>
+                <p className="info-label text-[8px] text-muted-foreground uppercase tracking-wider">Section</p>
+                <p className="info-value font-semibold">{student.sections?.name}</p>
               </div>
             </div>
-            <div>
-              <p className="text-[8px] text-muted-foreground uppercase tracking-wider">Guardian</p>
-              <p className="font-medium truncate">{student.father_name}</p>
+            <div className="info-row">
+              <p className="info-label text-[8px] text-muted-foreground uppercase tracking-wider">Guardian</p>
+              <p className="info-value font-medium truncate">{student.father_name}</p>
             </div>
           </div>
         </div>
 
         {/* QR Code Section */}
-        <div className="flex flex-col items-center justify-center">
+        <div className="qr-section flex flex-col items-center justify-center">
           <QRCodeSVG
             value={qrData}
             size={60}
@@ -90,12 +101,12 @@ export function StudentIDCard({
             includeMargin={false}
             className="rounded"
           />
-          <p className="text-[7px] text-muted-foreground mt-1">Scan to verify</p>
+          <p className="qr-text text-[7px] text-muted-foreground mt-1">Scan to verify</p>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 bg-primary/10 px-3 py-1 flex justify-between items-center border-t border-primary/20">
+      <div className="card-footer absolute bottom-0 left-0 right-0 bg-primary/10 px-3 py-1 flex justify-between items-center border-t border-primary/20" style={{ background: 'hsl(222.2 47.4% 95%)' }}>
         <p className="text-[8px] text-muted-foreground">
           Valid: <span className="font-semibold">{validYear}</span>
         </p>
@@ -120,14 +131,14 @@ export function StudentIDCardBack({
   schoolEmail?: string;
 }) {
   return (
-    <div className="id-card-back w-[3.375in] h-[2.125in] bg-gradient-to-br from-primary/5 via-background to-primary/10 border-2 border-primary/30 rounded-lg overflow-hidden shadow-lg print:shadow-none">
+    <div className="id-card-back w-[3.375in] h-[2.125in] bg-gradient-to-br from-primary/5 via-background to-primary/10 border-2 border-primary/30 rounded-lg overflow-hidden shadow-lg print:shadow-none" style={{ printColorAdjust: 'exact', WebkitPrintColorAdjust: 'exact' }}>
       {/* Header */}
-      <div className="bg-primary text-primary-foreground px-3 py-1.5 text-center">
+      <div className="card-header bg-primary text-primary-foreground px-3 py-1.5 text-center" style={{ background: 'hsl(222.2 47.4% 11.2%)', color: 'white' }}>
         <h2 className="text-xs font-bold">STUDENT IDENTITY CARD</h2>
       </div>
 
       {/* Terms */}
-      <div className="p-3 text-[8px] space-y-2">
+      <div className="back-content p-3 text-[8px] space-y-2">
         <div>
           <h3 className="font-bold text-[9px] mb-1">Terms & Conditions:</h3>
           <ol className="list-decimal list-inside space-y-0.5 text-muted-foreground">
@@ -152,7 +163,7 @@ export function StudentIDCardBack({
             <p className="text-muted-foreground">Email: {schoolEmail}</p>
           </div>
           <div className="text-right">
-            <div className="w-16 border-t border-foreground/50 mb-0.5"></div>
+            <div className="signature-line w-16 border-t border-foreground/50 mb-0.5"></div>
             <p className="text-[7px] text-muted-foreground">Authorized Signature</p>
           </div>
         </div>

@@ -20,10 +20,13 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminStudents from "./pages/admin/AdminStudents";
 import AdminAttendance from "./pages/admin/AdminAttendance";
+import AdminAttendanceReports from "./pages/admin/AdminAttendanceReports";
 import AdminSubjects from "./pages/admin/AdminSubjects";
 import AdminExams from "./pages/admin/AdminExams";
 import AdminMarksEntry from "./pages/admin/AdminMarksEntry";
 import AdminMarksheets from "./pages/admin/AdminMarksheets";
+import AdminCombinedMarksheets from "./pages/admin/AdminCombinedMarksheets";
+import AdminIDCards from "./pages/admin/AdminIDCards";
 
 const queryClient = new QueryClient();
 
@@ -50,10 +53,13 @@ const App = () => (
                 <Route path="settings" element={<AdminSettings />} />
                 <Route path="students" element={<AdminStudents />} />
                 <Route path="attendance" element={<AdminAttendance />} />
+                <Route path="attendance-reports" element={<AdminAttendanceReports />} />
                 <Route path="subjects" element={<AdminSubjects />} />
                 <Route path="exams" element={<AdminExams />} />
-                <Route path="marks" element={<AdminMarksEntry />} />
+                <Route path="marks-entry/:examId" element={<AdminMarksEntry />} />
                 <Route path="marksheets" element={<AdminMarksheets />} />
+                <Route path="combined-marksheets" element={<AdminCombinedMarksheets />} />
+                <Route path="id-cards" element={<AdminIDCards />} />
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

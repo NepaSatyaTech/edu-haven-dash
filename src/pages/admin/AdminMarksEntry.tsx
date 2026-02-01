@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useStudents, useClassSubjects, useMarks, useSaveMarks, useExams, ClassSubject, Mark } from '@/hooks/useStudentManagement';
+import { useStudents, useClassSubjects, useMarks, useSaveMarks, useExams, ClassSubject, Mark, Student } from '@/hooks/useStudentManagement';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ArrowLeft, Save, Loader2, Upload, Download, FileSpreadsheet } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -24,6 +25,9 @@ const AdminMarksEntry = () => {
   const [selectedSection, setSelectedSection] = useState<string>('');
   const [marksData, setMarksData] = useState<Record<string, Record<string, number | null>>>({});
   const [sections, setSections] = useState<Array<{ id: string; name: string }>>([]);
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [importErrors, setImportErrors] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: exams = [] } = useExams();
   const exam = exams.find(e => e.id === examId);
@@ -106,6 +110,143 @@ const AdminMarksEntry = () => {
     await saveMarks.mutateAsync(marksToSave);
   };
 
+  // Download CSV Template
+  const handleDownloadTemplate = () => {
+    if (classSubjects.length === 0 || students.length === 0) {
+      toast.error('No subjects or students available');
+      return;
+    }
+
+    const headers = ['Roll Number', 'Student ID', 'Student Name', ...classSubjects.map(cs => cs.subjects.name)];
+    const rows = students.map(student => {
+      const studentMarks = marksData[student.id] || {};
+      return [
+        student.roll_number,
+        student.student_id,
+        student.full_name,
+        ...classSubjects.map(cs => studentMarks[cs.subject_id] ?? '')
+      ];
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `marks_template_${exam?.name?.replace(/\s+/g, '_')}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success('Template downloaded!');
+  };
+
+  // Import CSV
+  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      parseCSV(text);
+    };
+    reader.readAsText(file);
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const parseCSV = (text: string) => {
+    const lines = text.split('\n').filter(line => line.trim());
+    if (lines.length < 2) {
+      toast.error('CSV file is empty or invalid');
+      return;
+    }
+
+    const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+    const errors: string[] = [];
+    const newMarksData: Record<string, Record<string, number | null>> = { ...marksData };
+    let importedCount = 0;
+
+    // Find subject column indices
+    const subjectIndices: Record<string, number> = {};
+    classSubjects.forEach(cs => {
+      const index = headers.findIndex(h => h.toLowerCase() === cs.subjects.name.toLowerCase());
+      if (index !== -1) {
+        subjectIndices[cs.subject_id] = index;
+      }
+    });
+
+    // Find student ID column
+    const studentIdIndex = headers.findIndex(h => h.toLowerCase().includes('student id'));
+    const rollIndex = headers.findIndex(h => h.toLowerCase().includes('roll'));
+
+    if (studentIdIndex === -1 && rollIndex === -1) {
+      toast.error('CSV must have a "Student ID" or "Roll Number" column');
+      return;
+    }
+
+    // Parse data rows
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
+      
+      // Find student by ID or roll number
+      let student: Student | undefined;
+      if (studentIdIndex !== -1) {
+        student = students.find(s => s.student_id === values[studentIdIndex]);
+      }
+      if (!student && rollIndex !== -1) {
+        student = students.find(s => s.roll_number.toString() === values[rollIndex]);
+      }
+
+      if (!student) {
+        errors.push(`Row ${i + 1}: Student not found`);
+        continue;
+      }
+
+      // Extract marks for each subject
+      Object.entries(subjectIndices).forEach(([subjectId, colIndex]) => {
+        const value = values[colIndex];
+        if (value === '' || value === undefined) return;
+
+        const marks = parseFloat(value);
+        const subject = classSubjects.find(cs => cs.subject_id === subjectId)?.subjects;
+
+        if (isNaN(marks)) {
+          errors.push(`Row ${i + 1}: Invalid marks for ${subject?.name || 'subject'}`);
+          return;
+        }
+
+        if (subject && (marks < 0 || marks > subject.full_marks)) {
+          errors.push(`Row ${i + 1}: Marks for ${subject.name} must be 0-${subject.full_marks}`);
+          return;
+        }
+
+        if (!newMarksData[student!.id]) {
+          newMarksData[student!.id] = {};
+        }
+        newMarksData[student!.id][subjectId] = marks;
+        importedCount++;
+      });
+    }
+
+    setMarksData(newMarksData);
+    setImportErrors(errors);
+
+    if (errors.length > 0) {
+      setIsImportOpen(true);
+    }
+    
+    toast.success(`Imported marks for ${importedCount} entries`);
+  };
+
   const getGrade = (marks: number | null, fullMarks: number): string => {
     if (marks === null) return '-';
     const percentage = (marks / fullMarks) * 100;
@@ -155,7 +296,7 @@ const AdminMarksEntry = () => {
         <div className="flex-1">
           <h1 className="text-2xl font-bold">{exam.name}</h1>
           <p className="text-muted-foreground">
-            {exam.classes?.name} • {exam.academic_years?.name}
+            {exam.academic_years?.name}
           </p>
         </div>
         <Button onClick={handleSaveMarks} disabled={saveMarks.isPending}>
@@ -168,27 +309,92 @@ const AdminMarksEntry = () => {
         </Button>
       </div>
 
+      {/* Exam Info Card */}
+      <div className="bg-muted/30 border rounded-lg p-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Class:</span>
+            <Badge variant="secondary" className="text-sm font-semibold">
+              {exam.classes?.name}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Exam Type:</span>
+            <Badge variant="outline" className="text-sm">
+              {exam.exam_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            </Badge>
+          </div>
+          {exam.start_date && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Date:</span>
+              <span className="text-sm">{new Date(exam.start_date).toLocaleDateString()}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Import/Export Actions */}
+      {classSubjects.length > 0 && (
+        <div className="flex flex-wrap gap-4">
+          <Button variant="outline" onClick={handleDownloadTemplate}>
+            <Download className="h-4 w-4 mr-2" />
+            Download Template
+          </Button>
+          <div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept=".csv"
+              onChange={handleImportCSV}
+              className="hidden"
+              id="csv-import"
+            />
+            <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="h-4 w-4 mr-2" />
+              Import from CSV
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Section Filter */}
-      <div className="flex gap-4">
-        <Select value={selectedSection || 'all'} onValueChange={(v) => setSelectedSection(v === 'all' ? '' : v)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select Section" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Sections</SelectItem>
-            {sections.map((section) => (
-              <SelectItem key={section.id} value={section.id}>
-                Section {section.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Filter by Section:</span>
+          <Select value={selectedSection || 'all'} onValueChange={(v) => setSelectedSection(v === 'all' ? '' : v)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Section" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Sections</SelectItem>
+              {sections.map((section) => (
+                <SelectItem key={section.id} value={section.id}>
+                  Section {section.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Badge variant="outline" className="h-10 px-4 flex items-center">
           {students.length} Students
         </Badge>
       </div>
 
+      {/* No subjects warning */}
+      {classSubjects.length === 0 && (
+        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-yellow-700 mb-2">No Subjects Assigned</h3>
+          <p className="text-muted-foreground mb-4">
+            There are no subjects assigned to {exam.classes?.name}. Please add subjects first.
+          </p>
+          <Button variant="outline" onClick={() => navigate('/admin/subjects')}>
+            Go to Subjects Management
+          </Button>
+        </div>
+      )}
+
       {/* Marks Entry Table */}
+      {classSubjects.length > 0 && (
       <div className="border rounded-lg overflow-x-auto">
         <Table>
           <TableHeader>
@@ -199,13 +405,13 @@ const AdminMarksEntry = () => {
                 <TableHead key={cs.subject_id} className="text-center min-w-[100px]">
                   <div>{cs.subjects.name}</div>
                   <div className="text-xs font-normal text-muted-foreground">
-                    ({cs.subjects.full_marks})
+                    FM: {cs.subjects.full_marks} | PM: {cs.subjects.pass_marks}
                   </div>
                 </TableHead>
               ))}
               <TableHead className="text-center">Total</TableHead>
               <TableHead className="text-center">%</TableHead>
-              <TableHead className="text-center">GPA</TableHead>
+              <TableHead className="text-center">Grade</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -289,6 +495,7 @@ const AdminMarksEntry = () => {
           </TableBody>
         </Table>
       </div>
+      )}
 
       {/* Legend */}
       <div className="bg-muted/50 rounded-lg p-4">
@@ -305,6 +512,29 @@ const AdminMarksEntry = () => {
           <span className="text-red-600">E (Below 20%)</span>
         </div>
       </div>
+
+      {/* Import Errors Dialog */}
+      <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileSpreadsheet className="h-5 w-5" />
+              Import Results
+            </DialogTitle>
+            <DialogDescription>
+              Some rows had issues during import
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-60 overflow-y-auto">
+            {importErrors.map((error, idx) => (
+              <p key={idx} className="text-sm text-destructive py-1 border-b last:border-0">
+                {error}
+              </p>
+            ))}
+          </div>
+          <Button onClick={() => setIsImportOpen(false)}>Close</Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
