@@ -9,8 +9,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useClasses, useSections, useCreateStudent, useUpdateStudent, Student } from '@/hooks/useStudentManagement';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Upload, User, X } from 'lucide-react';
+import { Loader2, Upload, User, X, Camera } from 'lucide-react';
 import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+
 
 const studentSchema = z.object({
   full_name: z.string().min(2, 'Name must be at least 2 characters').max(100),
@@ -37,10 +40,14 @@ const StudentForm = ({ student, onSuccess }: StudentFormProps) => {
   const createStudent = useCreateStudent();
   const updateStudent = useUpdateStudent();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(student?.photo_url || null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   const form = useForm<StudentFormData>({
     resolver: zodResolver(studentSchema),
@@ -91,6 +98,70 @@ const StudentForm = ({ student, onSuccess }: StudentFormProps) => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const openCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: 1280, height: 720 },
+        audio: false,
+      });
+      setStream(mediaStream);
+      setIsCameraOpen(true);
+      
+      // Wait for video element to be ready
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      toast.error('Failed to access camera. Please ensure camera permissions are granted.');
+    }
+  };
+
+  const closeCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setIsCameraOpen(false);
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+
+    if (!context) return;
+
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Draw video frame to canvas
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Convert canvas to blob and create file
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+
+      const file = new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      setPhotoFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setPhotoPreview(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      closeCamera();
+      toast.success('Photo captured successfully!');
+    }, 'image/jpeg', 0.9);
   };
 
   const uploadPhoto = async (studentId: string): Promise<string | null> => {
@@ -193,7 +264,7 @@ const StudentForm = ({ student, onSuccess }: StudentFormProps) => {
                 <img
                   src={photoPreview}
                   alt="Student photo"
-                  className="w-24 h-24 rounded-full object-cover border-2 border-border"
+                  className="w-32 h-32 rounded-full object-cover border-2 border-border"
                 />
                 <button
                   type="button"
@@ -202,26 +273,95 @@ const StudentForm = ({ student, onSuccess }: StudentFormProps) => {
                 >
                   <X className="h-3 w-3" />
                 </button>
+                <div className="absolute bottom-0 right-0 flex gap-1">
+                  <label
+                    htmlFor="photo-upload"
+                    className="bg-primary text-primary-foreground rounded-full p-1.5 cursor-pointer hover:bg-primary/90"
+                    title="Upload from device"
+                  >
+                    <Upload className="h-3 w-3" />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={openCamera}
+                    className="bg-secondary text-secondary-foreground rounded-full p-1.5 cursor-pointer hover:bg-secondary/90"
+                    title="Take photo from camera"
+                  >
+                    <Camera className="h-3 w-3" />
+                  </button>
+                </div>
               </div>
             ) : (
-              <label
-                htmlFor="photo-upload"
-                className="w-24 h-24 rounded-full border-2 border-dashed border-muted-foreground/50 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors"
-              >
-                <User className="h-8 w-8 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground mt-1">Add Photo</span>
-              </label>
-            )}
-            {photoPreview && (
-              <label
-                htmlFor="photo-upload"
-                className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-1.5 cursor-pointer hover:bg-primary/90"
-              >
-                <Upload className="h-3 w-3" />
-              </label>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-32 h-32 rounded-full border-2 border-dashed border-muted-foreground/50 flex flex-col items-center justify-center">
+                  <User className="h-12 w-12 text-muted-foreground" />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={openCamera}
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    Take Photo
+                  </Button>
+                  <label htmlFor="photo-upload">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      asChild
+                    >
+                      <span>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload
+                      </span>
+                    </Button>
+                  </label>
+                </div>
+              </div>
             )}
           </div>
         </div>
+
+        {/* Camera Modal */}
+        <Dialog open={isCameraOpen} onOpenChange={(open) => !open && closeCamera()}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Take Photo</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="relative bg-black rounded-lg overflow-hidden">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  className="w-full h-auto"
+                />
+                <canvas ref={canvasRef} className="hidden" />
+              </div>
+              <div className="flex justify-center gap-2">
+                <Button
+                  type="button"
+                  onClick={capturePhoto}
+                  size="lg"
+                >
+                  <Camera className="h-5 w-5 mr-2" />
+                  Capture Photo
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeCamera}
+                  size="lg"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
