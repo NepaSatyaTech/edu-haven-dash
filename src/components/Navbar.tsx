@@ -12,14 +12,14 @@ interface NavLink {
 
 const navLinks: NavLink[] = [
   { name: 'Home', nameNe: 'गृहपृष्ठ', href: '/' },
-  { name: 'About', nameNe: 'हाम्रो बारेमा', href: '#about' },
-  { name: 'Academics', nameNe: 'शैक्षिक', href: '#academics' },
-  { name: 'Admissions', nameNe: 'भर्ना', href: '#admissions' },
-  { name: 'Faculty', nameNe: 'शिक्षक', href: '#faculty' },
-  { name: 'Facilities', nameNe: 'सुविधाहरू', href: '#facilities' },
-  { name: 'Gallery', nameNe: 'ग्यालरी', href: '#gallery' },
-  { name: 'Notices', nameNe: 'सूचनाहरू', href: '#notices' },
-  { name: 'Contact', nameNe: 'सम्पर्क', href: '#contact' },
+  { name: 'About', nameNe: 'हाम्रो बारेमा', href: '/about' },
+  { name: 'Academics', nameNe: 'शैक्षिक', href: '/academics' },
+  { name: 'Admissions', nameNe: 'भर्ना', href: '/admissions' },
+  { name: 'Faculty', nameNe: 'शिक्षक', href: '/faculty' },
+  { name: 'Facilities', nameNe: 'सुविधाहरू', href: '/facilities' },
+  { name: 'Gallery', nameNe: 'ग्यालरी', href: '/gallery' },
+  { name: 'Notices', nameNe: 'सूचनाहरू', href: '/notices' },
+  { name: 'Contact', nameNe: 'सम्पर्क', href: '/contact' },
 ];
 
 export const Navbar = () => {
@@ -87,23 +87,20 @@ export const Navbar = () => {
 
           <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
-                href={link.href}
-                onClick={(e) => {
-                  if (link.href.startsWith('#')) {
-                    e.preventDefault();
-                    scrollToSection(link.href);
-                  }
-                }}
+                to={link.href}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-primary/10 ${
-                  scrolled
-                    ? 'text-foreground hover:text-primary'
-                    : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10'
+                  location.pathname === link.href
+                    ? 'text-primary bg-primary/10'
+                    : scrolled
+                      ? 'text-foreground hover:text-primary'
+                      : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10'
                 }`}
+                onClick={() => setIsOpen(false)}
               >
                 {language === 'ne' ? link.nameNe : link.name}
-              </a>
+              </Link>
             ))}
             
             {/* Language Toggle */}
@@ -152,19 +149,16 @@ export const Navbar = () => {
         >
           <div className="py-4 space-y-1 bg-card/95 backdrop-blur-lg rounded-2xl mb-4 px-2">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
-                href={link.href}
-                onClick={(e) => {
-                  if (link.href.startsWith('#')) {
-                    e.preventDefault();
-                    scrollToSection(link.href);
-                  }
-                }}
-                className="block px-4 py-3 rounded-xl text-foreground font-medium transition-colors hover:bg-primary/10 hover:text-primary"
+                to={link.href}
+                onClick={() => setIsOpen(false)}
+                className={`block px-4 py-3 rounded-xl font-medium transition-colors hover:bg-primary/10 hover:text-primary ${
+                  location.pathname === link.href ? 'text-primary bg-primary/10' : 'text-foreground'
+                }`}
               >
                 {language === 'ne' ? link.nameNe : link.name}
-              </a>
+              </Link>
             ))}
             
             {/* Mobile Language Toggle */}
