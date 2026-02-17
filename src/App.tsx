@@ -7,6 +7,14 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import About from "./pages/About";
+import Academics from "./pages/Academics";
+import Admissions from "./pages/Admissions";
+import FacultyPage from "./pages/Faculty";
+import Facilities from "./pages/Facilities";
+import Gallery from "./pages/Gallery";
+import Notices from "./pages/Notices";
+import Contact from "./pages/Contact";
 import AdminLogin from "./pages/AdminLogin";
 import AdminLayout from "./components/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -40,6 +48,14 @@ const App = () => (
           <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/academics" element={<Academics />} />
+              <Route path="/admissions" element={<Admissions />} />
+              <Route path="/faculty" element={<FacultyPage />} />
+              <Route path="/facilities" element={<Facilities />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/notices" element={<Notices />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />
