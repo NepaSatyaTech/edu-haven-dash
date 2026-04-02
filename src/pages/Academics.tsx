@@ -41,20 +41,7 @@ const Academics = () => {
     <main className="min-h-screen">
       <Navbar />
       
-      {/* Hero */}
-      <div className="pt-20 bg-hero-gradient text-primary-foreground">
-        <div className="container-custom mx-auto px-4 py-16 md:py-24 text-center">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary-foreground/10 text-sm font-semibold mb-4">
-            {t('Academics', 'शैक्षिक')}
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-            {t('Comprehensive ', 'समग्र ')}<span className="text-gradient">{t('Education', 'शिक्षा')}</span>
-          </h1>
-          <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto">
-            {t('NEB-affiliated curriculum designed to foster intellectual curiosity, critical thinking, and holistic development.', 'बौद्धिक जिज्ञासा, समालोचनात्मक सोच, र समग्र विकास प्रवर्द्धन गर्न डिजाइन गरिएको NEB सम्बन्धित पाठ्यक्रम।')}
-          </p>
-        </div>
-      </div>
+      <div className="pt-20" />
 
       {/* Main Academics Section */}
       <AcademicsSection />

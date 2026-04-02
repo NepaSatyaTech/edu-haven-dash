@@ -67,35 +67,7 @@ const About = () => {
     <main className="min-h-screen">
       <Navbar />
       
-      {/* Hero Banner */}
-      <div className="pt-20 bg-hero-gradient text-primary-foreground">
-        <div className="container-custom mx-auto px-4 py-16 md:py-24">
-          <div className="text-center max-w-3xl mx-auto">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary-foreground/10 text-primary-foreground text-sm font-semibold mb-4">
-              {t('About Us', 'हाम्रो बारेमा')}
-            </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-              {t('Our Story of ', 'हाम्रो कथा ')}<span className="text-gradient">{t('Excellence', 'उत्कृष्टता')}</span>
-            </h1>
-            <p className="text-lg text-primary-foreground/80">
-              {t(
-                'For over five decades, we have been shaping young minds and building future leaders with quality education and values.',
-                'पाँच दशकभन्दा बढी समयदेखि, हामीले गुणस्तरीय शिक्षा र मूल्यहरूका साथ युवा मनहरूलाई आकार दिँदै र भविष्यका नेताहरू बनाउँदै आएका छौं।'
-              )}
-            </p>
-          </div>
-          
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 max-w-4xl mx-auto">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center p-4 rounded-xl bg-primary-foreground/5 backdrop-blur-sm">
-                <div className="text-3xl md:text-4xl font-display font-bold text-secondary">{stat.value}</div>
-                <p className="text-sm text-primary-foreground/70 mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <div className="pt-20" />
 
       {/* Main About Section */}
       <AboutSection />

@@ -82,21 +82,7 @@ const Notices = () => {
     <main className="min-h-screen">
       <Navbar />
       
-      {/* Hero */}
-      <div className="pt-20 bg-hero-gradient text-primary-foreground">
-        <div className="container-custom mx-auto px-4 py-16 md:py-24 text-center">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary-foreground/10 text-sm font-semibold mb-4">
-            <Bell className="w-4 h-4 inline mr-1" />
-            {t('Notices & Circulars', 'सूचना तथा परिपत्र')}
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-            {t('Stay ', 'अपडेट ')}<span className="text-gradient">{t('Updated', 'रहनुहोस्')}</span>
-          </h1>
-          <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto">
-            {t('All important announcements, exam notices, holidays, and circulars in one place.', 'सबै महत्वपूर्ण सूचना, परीक्षा नोटिस, बिदा, र परिपत्र एकै ठाउँमा।')}
-          </p>
-        </div>
-      </div>
+      <div className="pt-20" />
 
       {/* Search & Filter */}
       <section className="section-padding bg-background">

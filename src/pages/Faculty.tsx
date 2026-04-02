@@ -35,30 +35,7 @@ const Faculty = () => {
     <main className="min-h-screen">
       <Navbar />
       
-      {/* Hero */}
-      <div className="pt-20 bg-hero-gradient text-primary-foreground">
-        <div className="container-custom mx-auto px-4 py-16 md:py-24 text-center">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary-foreground/10 text-sm font-semibold mb-4">
-            {t('Our Faculty', 'हाम्रो शिक्षकहरू')}
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-            {t('Meet Our ', 'भेट्नुहोस् हाम्रा ')}<span className="text-gradient">{t('Expert Teachers', 'विशेषज्ञ शिक्षकहरू')}</span>
-          </h1>
-          <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto">
-            {t('Dedicated educators committed to nurturing excellence in every student.', 'हरेक विद्यार्थीमा उत्कृष्टता विकास गर्न प्रतिबद्ध समर्पित शिक्षकहरू।')}
-          </p>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 max-w-4xl mx-auto">
-            {stats.map((s) => (
-              <div key={s.label} className="p-4 rounded-xl bg-primary-foreground/5 backdrop-blur-sm">
-                <s.icon className="w-6 h-6 text-secondary mx-auto mb-2" />
-                <div className="text-2xl md:text-3xl font-display font-bold text-secondary">{s.value}</div>
-                <p className="text-xs text-primary-foreground/70 mt-1">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <div className="pt-20" />
 
       {/* Faculty Section */}
       <FacultySection />
