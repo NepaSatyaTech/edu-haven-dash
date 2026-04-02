@@ -18,20 +18,7 @@ const Facilities = () => {
     <main className="min-h-screen">
       <Navbar />
       
-      {/* Hero */}
-      <div className="pt-20 bg-hero-gradient text-primary-foreground">
-        <div className="container-custom mx-auto px-4 py-16 md:py-24 text-center">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary-foreground/10 text-sm font-semibold mb-4">
-            {t('Facilities', 'सुविधाहरू')}
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-            {t('World-Class ', 'विश्वस्तरीय ')}<span className="text-gradient">{t('Infrastructure', 'पूर्वाधार')}</span>
-          </h1>
-          <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto">
-            {t('Modern facilities designed to support comprehensive learning and holistic development.', 'समग्र शिक्षा र समग्र विकासलाई समर्थन गर्न डिजाइन गरिएका आधुनिक सुविधाहरू।')}
-          </p>
-        </div>
-      </div>
+      <div className="pt-20" />
 
       {/* Main Facilities */}
       <FacilitiesSection />

@@ -56,20 +56,7 @@ const Admissions = () => {
     <main className="min-h-screen">
       <Navbar />
       
-      {/* Hero */}
-      <div className="pt-20 bg-hero-gradient text-primary-foreground">
-        <div className="container-custom mx-auto px-4 py-16 md:py-24 text-center">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary-foreground/10 text-sm font-semibold mb-4">
-            {t('Admissions Open', 'भर्ना खुला')}
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-            {t('Join Our ', 'हाम्रो ')}<span className="text-gradient">{t('Family', 'परिवारमा सामेल हुनुहोस्')}</span>
-          </h1>
-          <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto">
-            {t('Simple and transparent admission process. Start your child\'s journey to excellence today.', 'सरल र पारदर्शी भर्ना प्रक्रिया। आज नै तपाईंको बालबालिकाको उत्कृष्टताको यात्रा सुरु गर्नुहोस्।')}
-          </p>
-        </div>
-      </div>
+      <div className="pt-20" />
 
       {/* Admission Form & Process */}
       <AdmissionsSection />
