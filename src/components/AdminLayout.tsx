@@ -85,15 +85,15 @@ const AdminLayout = () => {
       <Link
         to={item.href}
         onClick={() => setSidebarOpen(false)}
-        className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
           isActive
-            ? 'bg-primary text-primary-foreground'
-            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
+            : 'text-sidebar-foreground/65 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
         }`}
       >
-        <item.icon className="w-4 h-4" />
-        <span className="font-medium text-sm">{item.name}</span>
-        {isActive && <ChevronRight className="w-4 h-4 ml-auto" />}
+        <item.icon className="w-4 h-4 flex-shrink-0" />
+        <span>{item.name}</span>
+        {isActive && <div className="w-1.5 h-1.5 rounded-full bg-sidebar-primary-foreground/70 ml-auto" />}
       </Link>
     );
   };
@@ -110,69 +110,83 @@ const AdminLayout = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-card border-r border-border transform transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-64 border-r border-sidebar-border transform transition-transform duration-300 lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        style={{ background: 'var(--admin-sidebar-gradient)' }}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-border">
-          <Link to="/admin" className="flex items-center gap-3">
-            <div className="p-1.5 rounded-lg bg-primary">
-              <GraduationCap className="h-6 w-6 text-primary-foreground" />
+        <div className="h-16 flex items-center justify-between px-5 border-b border-sidebar-border">
+          <Link to="/admin" className="flex items-center gap-3 group">
+            <div className="p-2 rounded-xl bg-sidebar-primary/20 border border-sidebar-primary/30 group-hover:bg-sidebar-primary/30 transition-colors">
+              <GraduationCap className="h-5 w-5 text-sidebar-primary" />
             </div>
-            <span className="font-display font-bold text-foreground">Admin Panel</span>
+            <div>
+              <span className="font-display font-bold text-sidebar-foreground text-sm leading-tight block">Admin Panel</span>
+              <span className="text-2xs text-sidebar-foreground/50 leading-tight block">School Management</span>
+            </div>
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-muted-foreground hover:text-foreground"
+            className="lg:hidden text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors p-1 rounded-lg hover:bg-sidebar-accent"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-2 overflow-y-auto max-h-[calc(100vh-160px)]">
+        <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-160px)]">
           {/* Dashboard */}
           <Link
             to="/admin"
             onClick={() => setSidebarOpen(false)}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
               location.pathname === '/admin'
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-md'
+                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
             }`}
           >
-            <LayoutDashboard className="w-5 h-5" />
-            <span className="font-medium">Dashboard</span>
-            {location.pathname === '/admin' && <ChevronRight className="w-4 h-4 ml-auto" />}
+            <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
+            <span>Dashboard</span>
+            {location.pathname === '/admin' && <div className="w-1.5 h-1.5 rounded-full bg-sidebar-primary-foreground ml-auto" />}
           </Link>
+
+          {/* Divider */}
+          <div className="pt-2 pb-1 px-3">
+            <span className="text-2xs font-semibold uppercase tracking-widest text-sidebar-foreground/30">Website</span>
+          </div>
 
           {/* Head Teacher Section */}
           <Collapsible open={headTeacherOpen} onOpenChange={setHeadTeacherOpen}>
-            <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted rounded-lg transition-colors">
+            <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 hover:text-sidebar-foreground/80 rounded-lg transition-colors">
               <span className="flex items-center gap-2">
-                <GraduationCap className="w-4 h-4" />
+                <GraduationCap className="w-3.5 h-3.5" />
                 Head Teacher
               </span>
-              <ChevronDown className={`w-4 h-4 transition-transform ${headTeacherOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${headTeacherOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-1 ml-2 space-y-1 border-l-2 border-border pl-2">
+            <CollapsibleContent className="mt-1 space-y-0.5">
               {headTeacherItems.map((item) => (
                 <NavItem key={item.name} item={item} />
               ))}
             </CollapsibleContent>
           </Collapsible>
 
+          {/* Divider */}
+          <div className="pt-2 pb-1 px-3">
+            <span className="text-2xs font-semibold uppercase tracking-widest text-sidebar-foreground/30">Academic</span>
+          </div>
+
           {/* Teacher Admin Section */}
           <Collapsible open={teacherOpen} onOpenChange={setTeacherOpen}>
-            <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted rounded-lg transition-colors">
+            <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 hover:text-sidebar-foreground/80 rounded-lg transition-colors">
               <span className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
+                <Users className="w-3.5 h-3.5" />
                 Teacher Admin
               </span>
-              <ChevronDown className={`w-4 h-4 transition-transform ${teacherOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${teacherOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-1 ml-2 space-y-1 border-l-2 border-border pl-2">
+            <CollapsibleContent className="mt-1 space-y-0.5">
               {teacherItems.map((item) => (
                 <NavItem key={item.name} item={item} />
               ))}
@@ -181,43 +195,50 @@ const AdminLayout = () => {
         </nav>
 
         {/* User & Logout */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-card">
-          <div className="mb-3 px-4">
-            <p className="text-sm font-medium text-foreground truncate">{user?.email}</p>
-            <p className="text-xs text-muted-foreground">Administrator</p>
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-sidebar-border" style={{ background: 'hsl(222 50% 10%)' }}>
+          <div className="flex items-center gap-3 mb-3 px-1">
+            <div className="w-8 h-8 rounded-full bg-sidebar-primary/20 border border-sidebar-primary/30 flex items-center justify-center flex-shrink-0">
+              <span className="text-xs font-bold text-sidebar-primary">
+                {user?.email?.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.email}</p>
+              <p className="text-2xs text-sidebar-foreground/40">Administrator</p>
+            </div>
           </div>
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-3"
+          <button
             onClick={handleSignOut}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-sidebar-foreground/60 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
-          </Button>
+          </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="lg:ml-64">
+      <div className="lg:ml-64 min-h-screen flex flex-col">
         {/* Header */}
-        <header className="sticky top-0 z-30 h-16 bg-card/80 backdrop-blur-lg border-b border-border flex items-center px-4 lg:px-8">
+        <header className="sticky top-0 z-30 h-16 admin-header flex items-center px-4 lg:px-8 gap-4">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground"
+            className="lg:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
           <Link
             to="/"
-            className="text-sm text-primary font-medium hover:underline"
+            className="flex items-center gap-1.5 text-sm text-primary font-medium hover:text-primary/80 transition-colors px-3 py-1.5 rounded-lg hover:bg-primary/8"
           >
-            View Website →
+            View Website
+            <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </header>
 
         {/* Page Content */}
-        <main className="p-4 lg:p-8">
+        <main className="flex-1 p-4 lg:p-8 bg-muted/20">
           <Outlet />
         </main>
       </div>

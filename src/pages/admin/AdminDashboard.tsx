@@ -70,12 +70,12 @@ const AdminDashboard = () => {
   }, []);
 
   const statCards = [
-    { name: 'Notices', value: stats.notices, icon: Bell, color: 'bg-blue-500', href: '/admin/notices' },
-    { name: 'Events', value: stats.events, icon: Calendar, color: 'bg-purple-500', href: '/admin/events' },
-    { name: 'Gallery Images', value: stats.gallery, icon: Image, color: 'bg-amber-500', href: '/admin/gallery' },
-    { name: 'Faculty Members', value: stats.faculty, icon: Users, color: 'bg-emerald-500', href: '/admin/faculty' },
-    { name: 'Messages', value: stats.messages, icon: MessageSquare, color: 'bg-rose-500', href: '/admin/messages', badge: stats.unreadMessages },
-    { name: 'Admissions', value: stats.admissions, icon: FileText, color: 'bg-cyan-500', href: '/admin/admissions', badge: stats.pendingAdmissions },
+    { name: 'Notices', value: stats.notices, icon: Bell, color: 'bg-blue-500', iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', href: '/admin/notices' },
+    { name: 'Events', value: stats.events, icon: Calendar, color: 'bg-violet-500', iconBg: 'bg-violet-50 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400', href: '/admin/events' },
+    { name: 'Gallery Images', value: stats.gallery, icon: Image, color: 'bg-amber-500', iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400', href: '/admin/gallery' },
+    { name: 'Faculty Members', value: stats.faculty, icon: Users, color: 'bg-emerald-500', iconBg: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400', href: '/admin/faculty' },
+    { name: 'Messages', value: stats.messages, icon: MessageSquare, color: 'bg-rose-500', iconBg: 'bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400', href: '/admin/messages', badge: stats.unreadMessages },
+    { name: 'Admissions', value: stats.admissions, icon: FileText, color: 'bg-cyan-500', iconBg: 'bg-cyan-50 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400', href: '/admin/admissions', badge: stats.pendingAdmissions },
   ];
 
   if (isLoading) {
